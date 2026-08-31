@@ -158,7 +158,21 @@ async function gallra(rum, lista) {
   return lista.filter(p => !bort.has(p.id));
 }
 
-/* Raderar hela historiken. Anropas när dokumentet markeras som klart. */
+/* Raderar historiken och sparar läget som dokumentet markerades klart i.
+ *
+ * Historiken ska bort – innehållet är påskrivet, och äldre lägen ska inte finnas
+ * kvar. Men just det läge som skrevs under är värt att behålla: det är vad man
+ * sagt ja till. Utan det kan man återöppna dokumentet, ändra, och sakna varje
+ * spår av vad som en gång godkändes.
+ */
+export async function nollstallOchBevara(rum, doc) {
+  const antal = await nollstall(rum);
+  const post = await spara(rum, doc, { etikett: 'Läget vid klarmarkering' });
+  console.log('läget vid klarmarkering sparat:', rum);
+  return { raderade: antal, bevarad: post };
+}
+
+/* Raderar hela historiken. */
 export async function nollstall(rum) {
   const lista = await lasIndex(rum);
   for (const post of lista) {

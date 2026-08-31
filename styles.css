@@ -216,8 +216,18 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
 .prick.gra { background: var(--text-svag); }
 .prick.gul { background: #ba7517; }
 
-/* Namnetiketten ovanför andras markörer */
-.ql-cursor-flag { border-radius: 3px; font-size: 11px; }
+/* Initialerna ovanför andras markörer i texten.
+   Biblioteket döljer etiketten som standard och visar den bara en kort stund
+   efter en rörelse. Vi vill se vem som står var hela tiden. Reglerna måste vara
+   påtvingade, eftersom bibliotekets egen stilmall läggs in efter vår. */
+.ql-cursors .ql-cursor .ql-cursor-flag {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transition: none !important;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+}
 
 /* ---------- Kommentarer ---------- */
 

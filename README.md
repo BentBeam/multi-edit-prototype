@@ -59,14 +59,27 @@ webbläsardata tappar sitt ägarskap.
 Dokument som skapades innan ägarskap fanns har ingen ägare, och kunde därför
 aldrig återställas. Historikpanelen erbjuder då "Gör mig till ägare".
 
-Historiken raderas när dokumentet markeras som klart. Notera hålet: eftersom
-klarmarkeringen går att ångra kan man hamna i ett redigerbart dokument utan
-historik.
+Historiken raderas när dokumentet markeras som klart – då är innehållet
+påskrivet, och äldre lägen ska inte finnas kvar. Ett läge behålls dock: det som
+markerades klart, sparat under etiketten "Läget vid klarmarkering". Utan det kan
+dokumentet återöppnas och ändras utan att något spår finns av vad som en gång
+godkändes.
 
 Att återställa är inte att rulla tillbaka. Återställningen läggs på som en ny
 ändring, syns själv i historiken, och går att ångra genom att återställa till
 något senare. Den utförs genom Quill, inte direkt i Yjs – skriver man i Yjs
 bakom editorns rygg uppdaterar den inte alltid vad som visas.
+
+## Om deltagarfärgerna
+
+De sexton färgerna i `config.js` är uträknade, inte valda för hand. Varje färg
+klarar kontrastkravet för vit text, och nyanserna är fördelade så att den minsta
+synliga skillnaden mellan två av dem blir så stor som möjligt – jämnt fördelade
+nyanser räcker inte, eftersom ögat skiljer sämre mellan grönt än mellan blått.
+Byt dem inte styckvis; ändrar du en försvinner avvägningen mot de övriga.
+
+Deltagarens initialer står vid markören i texten, och etiketten hålls synlig med
+påtvingade css-regler. Biblioteket döljer den annars efter tre sekunder.
 
 ## Om författarfärgningen
 

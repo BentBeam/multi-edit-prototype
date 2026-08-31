@@ -102,7 +102,7 @@ function hamtaRum(namn) {
       post.baslinjeSparad = true;
       clearTimeout(post.versionstimer);
       post.versionstimer = null;
-      versioner.nollstall(namn);
+      versioner.nollstallOchBevara(namn, doc);
       return;
     }
 

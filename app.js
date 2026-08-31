@@ -241,7 +241,7 @@ function vyDokument(id) {
   }
 
   Lagring.notera(id);
-  const synk = anslut(id, profil);
+  const synk = anslut(id, { ...profil, initialer: initialer(profil.namn) });
   session = { id, synk, redigerare: {}, bindningar: [], harVaritAnsluten: false };
 
   app.innerHTML = `
@@ -375,7 +375,12 @@ function byggFormular() {
     const quill = new Quill(block.querySelector('.redigerare'), {
       theme: 'snow',
       placeholder: 'Skriv här',
-      modules: { toolbar: false, cursors: { transformOnTextChange: true } }
+      modules: {
+        toolbar: false,
+        /* Att etiketten alltid syns styrs i stilmallen, inte här –
+           biblioteket döljer den med css, inte med fördröjningen. */
+        cursors: { transformOnTextChange: true }
+      }
     });
 
     /* Kopplar rutan till den delade texten. Härifrån sköter Yjs synken. */
@@ -450,13 +455,17 @@ function ritaNarvaro() {
   behallare.innerHTML = '';
 
   deltagare(session.synk.awareness).forEach(person => {
+    /* name bär initialerna, avsett för markören i texten. Här vill vi ha det
+       fullständiga namnet och räkna ut initialerna själva. */
+    const namn = person.fulltNamn || person.name;
+
     const avatar = document.createElement('span');
     avatar.className = 'avatar';
     avatar.style.background = person.color;
-    avatar.textContent = initialer(person.name);
-    avatar.title = person.name;
+    avatar.textContent = initialer(namn);
+    avatar.title = namn;
     avatar.setAttribute('role', 'img');
-    avatar.setAttribute('aria-label', person.name);
+    avatar.setAttribute('aria-label', namn);
     behallare.append(avatar);
   });
 
@@ -532,8 +541,9 @@ function ritaPanel() {
     knapp.addEventListener('click', async () => {
       const ja = await bekrafta({
         rubrik: 'Markera dokumentet som klart?',
-        text: 'Historiken raderas, eftersom innehållet då är påskrivet. Dokumentet '
-            + 'låses för redigering, men går att återöppna.',
+        text: 'Historiken raderas, eftersom innehållet då är påskrivet. Läget du '
+            + 'markerar som klart sparas som en version. Dokumentet låses för '
+            + 'redigering, men går att återöppna.',
         jaText: 'Markera som klar'
       });
       if (ja) meta.set('status', 'klar');
@@ -655,7 +665,7 @@ async function ritaHistoriklista(rum) {
     tom.className = 'hist-tom';
     tom.textContent = session.synk.meta.get('status') === 'klar'
       ? 'Historiken raderades när dokumentet markerades som klart.'
-      : 'Inga sparade lägen än. Servern sparar automatiskt medan någon redigerar.';
+      : 'Inga sparade lägen än. Servern sparar så snart dokumentet har innehåll.';
     behallare.append(tom);
     return;
   }

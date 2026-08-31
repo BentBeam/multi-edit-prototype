@@ -26,9 +26,21 @@ export const SEKTIONER = [
   }
 ];
 
-/* Färger som delas ut till deltagare, i tur och ordning. */
+/* Sexton färger, en slumpas när en deltagare ansluter.
+ *
+ * Framtagna med hänsyn till två saker samtidigt: varje färg klarar
+ * kontrastkravet för vit text (lägst 4,60 mot kravet 4,5), och nyanserna är
+ * fördelade så att den minsta synliga skillnaden mellan två av dem blir så stor
+ * som möjligt. Jämnt fördelade nyanser räcker inte – ögat skiljer dåligt mellan
+ * grönt, så där ligger färgerna längre isär än i blått och violett.
+ *
+ * Byt dem inte styckvis. Ändrar du en försvinner avvägningen mot de övriga.
+ */
 export const DELTAGARFARGER = [
-  '#378ADD', '#BA7517', '#1D9E75', '#D4537E', '#7F77DD', '#D85A30'
+  '#D73B23', '#AA641C', '#827615', '#637E15',
+  '#478315', '#168717', '#168641', '#16846A',
+  '#188091', '#2276CE', '#5061E2', '#7650E2',
+  '#A744E1', '#CA21C8', '#D72392', '#DD2B56'
 ];
 
 /* Servern som skickar ändringar mellan deltagarna.

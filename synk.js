@@ -24,8 +24,11 @@ export function anslut(dokumentId, profil) {
      räknar med att det finns en awareness, så vi skapar en tom. */
   const awareness = provider ? provider.awareness : new Awareness(doc);
 
+  /* name är vad som står på markören i texten, och där ryms bara initialer.
+     Fullständiga namnet följer med separat, till avatarer och listor. */
   awareness.setLocalStateField('user', {
-    name: profil.namn,
+    name: profil.initialer || profil.namn,
+    fulltNamn: profil.namn,
     color: profil.farg
   });
 
