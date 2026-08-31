@@ -81,6 +81,11 @@ Byt dem inte styckvis; ändrar du en försvinner avvägningen mot de övriga.
 Deltagarens initialer står vid markören i texten, och etiketten hålls synlig med
 påtvingade css-regler. Biblioteket döljer den annars efter tre sekunder.
 
+Kopplingen mellan Quill och Yjs skapar en markör för varje deltagare i varje
+textruta, men flyttar den bara i rutan där personen faktiskt står. I de övriga
+blir en markör kvar på position noll. Det märktes inte så länge etiketterna
+gömdes efter några sekunder. `markorer.js` tar bort dem.
+
 ## Om författarfärgningen
 
 Ingenting märks upp i texten. Yjs vet redan vilken deltagare som satte in varje

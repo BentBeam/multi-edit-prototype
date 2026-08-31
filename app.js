@@ -11,6 +11,7 @@ import {
 } from './kommentarer.js';
 import { registreraMig, forfattare, forfattarrader } from './forfattare.js';
 import * as historik from './historik.js';
+import { stadaMarkorer } from './markorer.js';
 
 Quill.register('modules/cursors', QuillCursors);
 registreraFormat();
@@ -297,7 +298,10 @@ function vyDokument(id) {
     });
   });
 
-  synk.awareness.on('change', ritaNarvaro);
+  synk.awareness.on('change', () => {
+    ritaNarvaro();
+    schemalaggMarkorstadning();
+  });
   if (synk.provider) {
     synk.provider.on('status', handelse => {
       if (handelse.status === 'connected') session.harVaritAnsluten = true;
@@ -394,6 +398,7 @@ function byggFormular() {
       uppdateraRaknare(sektion, quill, block);
       ritaPanel();
       if (visaForfattare) ritaForfattarvy();
+      schemalaggMarkorstadning();
     });
 
     kopplaMarkering(quill, sektion);
@@ -445,6 +450,19 @@ function satLast(last) {
     quill.enable(!last);
     document.getElementById('sektion-' + sektion.key).classList.toggle('last', last);
   });
+}
+
+/* Körs efter att kopplingen ritat om markörerna, så vi städar det den lämnat. */
+function schemalaggMarkorstadning() {
+  if (!session || session.stadningPlanerad) return;
+  session.stadningPlanerad = true;
+  /* Fördröjning i stället för requestAnimationFrame – den senare pausas i
+     flikar som ligger i bakgrunden, och då städas ingenting. */
+  setTimeout(() => {
+    if (!session) return;
+    session.stadningPlanerad = false;
+    stadaMarkorer(session.synk, session.redigerare);
+  }, 60);
 }
 
 /* ---------- Närvaro och anslutning ---------- */
