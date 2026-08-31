@@ -1,0 +1,10 @@
+# Render läser den här filen automatiskt och fyller i formuläret åt dig.
+services:
+  - type: web
+    name: multi-edit-sync
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /

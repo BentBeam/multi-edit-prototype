@@ -1,0 +1,19 @@
+{
+  "name": "multi-edit-sync",
+  "private": true,
+  "type": "module",
+  "description": "Synkserver för prototypen. Tar emot ändringar och skickar dem vidare till alla som är inne i samma dokument.",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^11.0.2",
+    "lib0": "^0.2.102",
+    "ws": "^8.18.0",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.32"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

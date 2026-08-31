@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Delat dokument</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css">
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">
+{
+  "imports": {
+    "quill": "https://esm.sh/quill@2.0.3",
+    "quill-cursors": "https://esm.sh/quill-cursors@4.3.0",
+    "yjs": "https://esm.sh/yjs@13.6.32",
+    "y-websocket": "https://esm.sh/y-websocket@3.1.0?deps=yjs@13.6.32",
+    "y-protocols/awareness": "https://esm.sh/y-protocols@1.0.6/awareness?deps=yjs@13.6.32",
+    "y-indexeddb": "https://esm.sh/y-indexeddb@9.0.12?deps=yjs@13.6.32",
+    "y-quill": "https://esm.sh/y-quill@1.0.0?deps=yjs@13.6.32"
+  }
+}
+</script>
+</head>
+<body>
+  <main id="app"></main>
+  <div id="modal-lager" hidden></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
