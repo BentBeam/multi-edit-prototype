@@ -452,18 +452,14 @@ function satLast(last) {
   });
 }
 
-/* Körs efter att kopplingen ritat om markörerna, så vi städar det den lämnat. */
+/* Städar markörerna direkt, utan fördröjning.
+ *
+ * Lyssnarna registreras efter kopplingarnas egna, så den här körs i samma
+ * arbetspass men efter dem – innan webbläsaren hinner rita om. Med fördröjning
+ * hinner en felplacerad markör synas. */
 function schemalaggMarkorstadning() {
-  if (!session || session.stadningPlanerad) return;
-  session.stadningPlanerad = true;
-  /* Noll fördröjning: körs direkt efter att kopplingen ritat klart, men innan
-     bilden målas om. Fördröjning i stället för requestAnimationFrame, som
-     pausas i flikar som ligger i bakgrunden. */
-  setTimeout(() => {
-    if (!session) return;
-    session.stadningPlanerad = false;
-    stadaMarkorer(session.synk, session.redigerare);
-  }, 0);
+  if (!session) return;
+  stadaMarkorer(session.synk, session.redigerare);
 }
 
 /* ---------- Närvaro och anslutning ---------- */

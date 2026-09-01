@@ -86,11 +86,13 @@ textruta, men flyttar den bara i rutan där personen faktiskt står. I de övrig
 blir en markör kvar på position noll. Det märktes inte så länge etiketterna
 gömdes efter några sekunder.
 
-`markorer.js` löser det genom att markörer är dolda som standard och får klassen
-`hor-hemma` först när positionen kontrollerats. Att i stället ta bort dem i
-efterhand räckte inte – de hann ritas ut och blinka till på fel ställe. Med den
-här ordningen går en förflyttning mellan textrutor via ingen markör alls i
-stället för via en felplacerad.
+`markorer.js` tar bort dem, och det måste ske i samma arbetspass som kopplingens
+egen uppdatering – lyssnarna registreras därför efter kopplingarnas. Med
+fördröjning hinner den felplacerade markören blinka till.
+
+Att i stället dölja markörer med css fungerade sämre: biblioteket mäter
+elementet när det placerar markören, och ett element med `display: none` saknar
+mått, vilket gjorde att markören hamnade på fel rad.
 
 ## Om författarfärgningen
 
