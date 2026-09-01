@@ -6,6 +6,11 @@ import { IndexeddbPersistence } from 'y-indexeddb';
 import { Awareness } from 'y-protocols/awareness';
 import { SYNKSERVER, RUMSPREFIX } from './config.js';
 
+/* Hur länge efter senaste tangenttryck någon räknas som skrivande. Kort nog att
+   ett bortglömt fönster inte blockerar andra, långt nog att en tankepaus inte
+   släpper stycket mitt i en mening. */
+const TYSTNAD_MS = 8000;
+
 export function anslut(dokumentId, profil) {
   const rum = RUMSPREFIX + dokumentId;
   const doc = new Y.Doc();
@@ -29,13 +34,34 @@ export function anslut(dokumentId, profil) {
   awareness.setLocalStateField('user', {
     name: profil.initialer || profil.namn,
     fulltNamn: profil.namn,
-    color: profil.farg
+    color: profil.farg,
+    skriver: false
   });
+
+  /* Talar om för de andra att jag skriver just nu, och tystnar av sig själv.
+     Flaggan är ett ja eller nej satt av min egen webbläsare – inga klockor
+     jämförs mellan datorer, som annars går isär. */
+  let tystnadstimer = null;
+
+  function jagSkriver() {
+    const nu = awareness.getLocalState()?.user;
+    if (!nu) return;
+    if (!nu.skriver) awareness.setLocalStateField('user', { ...nu, skriver: true });
+
+    clearTimeout(tystnadstimer);
+    tystnadstimer = setTimeout(() => {
+      const senare = awareness.getLocalState()?.user;
+      if (senare) awareness.setLocalStateField('user', { ...senare, skriver: false });
+    }, TYSTNAD_MS);
+  }
 
   return {
     doc,
     provider,
     awareness,
+
+    /* Kallas vid varje tangenttryck, så andra ser vem som är i farten. */
+    jagSkriver,
 
     /* Sant när det inte finns någon server att dela med alls. */
     get saknarServer() {

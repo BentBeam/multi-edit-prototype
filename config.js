@@ -1,5 +1,11 @@
 /* Allt du normalt vill ändra ligger i den här filen. */
 
+/* Bumpas vid varje driftsättning. Visas när man håller musen över pricken i
+   statusraden, och skrivs ut i webbläsarens konsol vid start. Finns för att det
+   ska gå att avgöra på en sekund om en webbläsare kör den senaste koden – den
+   frågan har annars kostat oss mycket tid. */
+export const KODVERSION = '2026-08-31 c';
+
 export const APPNAMN = 'Delat dokument';
 
 /* Lägg till, ta bort eller döp om sektioner här. Nyckeln (key) måste vara unik

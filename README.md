@@ -14,6 +14,7 @@ textredigerare.
 | `kommentarer.js` | Kommentarsformatet i texten och trådarna som hör till. |
 | `forfattare.js` | Läser ut vem som skrev vad, ur Yjs egen struktur. |
 | `historik.js` | Hämtar sparade lägen och utför återställning. |
+| `styckelas.js` | Hindrar två personer från att skriva i samma stycke. |
 | `server/versioner.js` | Sparar och gallrar versionerna. |
 | `lagring.js` | Vilka dokument du öppnat, och vem du är. Inte innehållet. |
 | `app.js` | Vyer, validering och logik. |
@@ -69,6 +70,30 @@ Att återställa är inte att rulla tillbaka. Återställningen läggs på som e
 ändring, syns själv i historiken, och går att ångra genom att återställa till
 något senare. Den utförs genom Quill, inte direkt i Yjs – skriver man i Yjs
 bakom editorns rygg uppdaterar den inte alltid vad som visas.
+
+## Om styckelåset
+
+Ett stycke någon annan skriver i går inte att redigera. Spärren sitter i
+`beforeinput`, alltså innan tangenttrycket ändrat något, och läser vad
+webbläsaren är på väg att göra i stället för att fråga Quill var markören står –
+Quill hinner inte uppdatera sin uppfattning i tid.
+
+Det här är en artighetsspärr, inte ett lås. Den sitter i webbläsaren och kan
+kringgås, och två personer kan hamna i samma tomma stycke samtidigt. Synkmotorn
+klarar det ändå; spärren finns för att undvika oavsiktliga krockar.
+
+Ett stycke låses bara medan någon faktiskt skriver, och släpps efter åtta
+sekunders tystnad (`TYSTNAD_MS` i `synk.js`). Utan den gränsen låser ett
+bortglömt fönster texten för alla andra.
+
+## Felsökning
+
+`KODVERSION` i `config.js` visas när man håller musen över pricken i statusraden,
+och skrivs ut i webbläsarens konsol vid start. Bumpa den vid varje driftsättning
+– annars går det inte att avgöra om en webbläsare kör den senaste koden.
+
+`delatDokument.tillstand()` i konsolen visar version, deltagare, vem som skriver
+och vilka stycken som är låsta. Den läser bara, och ändrar ingenting.
 
 ## Om deltagarfärgerna
 

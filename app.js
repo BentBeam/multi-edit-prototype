@@ -2,7 +2,7 @@ import Quill from 'quill';
 import QuillCursors from 'quill-cursors';
 import { QuillBinding } from 'y-quill';
 
-import { APPNAMN, SEKTIONER, DELTAGARFARGER, RUMSPREFIX } from './config.js';
+import { APPNAMN, KODVERSION, SEKTIONER, DELTAGARFARGER, RUMSPREFIX } from './config.js';
 import { Lagring } from './lagring.js';
 import { anslut, deltagare } from './synk.js';
 import {
@@ -12,6 +12,7 @@ import {
 import { registreraMig, forfattare, forfattarrader } from './forfattare.js';
 import * as historik from './historik.js';
 import { stadaMarkorer } from './markorer.js';
+import { uppdateraLas, arLast } from './styckelas.js';
 
 Quill.register('modules/cursors', QuillCursors);
 registreraFormat();
@@ -243,7 +244,7 @@ function vyDokument(id) {
 
   Lagring.notera(id);
   const synk = anslut(id, { ...profil, initialer: initialer(profil.namn) });
-  session = { id, synk, redigerare: {}, bindningar: [], harVaritAnsluten: false };
+  session = { id, synk, redigerare: {}, bindningar: [], harVaritAnsluten: false, las: new Map() };
 
   app.innerHTML = `
     <header class="topprad">
@@ -394,11 +395,23 @@ function byggFormular() {
       session.synk.awareness
     );
 
-    quill.on('text-change', () => {
+    quill.on('text-change', (delta, gammal, kalla) => {
+      if (kalla === 'user') session.synk.jagSkriver();
       uppdateraRaknare(sektion, quill, block);
       ritaPanel();
       if (visaForfattare) ritaForfattarvy();
       schemalaggMarkorstadning();
+    });
+
+    /* Hindrar inmatning i ett stycke någon annan skriver i. beforeinput fångar
+       tangenttryck, inklistring och radering innan något hunnit ändras. */
+    ['beforeinput', 'paste', 'drop'].forEach(handelse => {
+      quill.root.addEventListener(handelse, e => {
+        const vem = arLast(quill, session?.las.get(sektion.key), e);
+        if (!vem) return;
+        e.preventDefault();
+        visaLasbesked(vem);
+      });
     });
 
     kopplaMarkering(quill, sektion);
@@ -460,6 +473,26 @@ function satLast(last) {
 function schemalaggMarkorstadning() {
   if (!session) return;
   stadaMarkorer(session.synk, session.redigerare);
+  session.las = uppdateraLas(session.synk, session.redigerare);
+}
+
+/* Kort besked när någon försöker skriva i ett upptaget stycke. */
+let lasbeskedTimer = null;
+
+function visaLasbesked(vem) {
+  let ruta = document.getElementById('lasbesked');
+  if (!ruta) {
+    ruta = document.createElement('div');
+    ruta.id = 'lasbesked';
+    ruta.className = 'lasbesked';
+    document.body.append(ruta);
+  }
+  ruta.textContent = vem.namn + ' skriver i det stycket just nu';
+  ruta.style.setProperty('--lasfarg', vem.farg);
+  ruta.classList.add('syns');
+
+  clearTimeout(lasbeskedTimer);
+  lasbeskedTimer = setTimeout(() => ruta.classList.remove('syns'), 2600);
 }
 
 /* ---------- Närvaro och anslutning ---------- */
@@ -500,6 +533,8 @@ function ritaStatusrad() {
     text.textContent = 'Ingen synkserver vald – du kan skriva, men ingen annan ser det';
     return;
   }
+
+  prick.title = 'Kodversion ' + KODVERSION;
 
   if (ansluten) {
     prick.className = 'prick gron';
@@ -1158,6 +1193,35 @@ function router() {
   if (traff) vyDokument(traff[1]);
   else vyStart();
 }
+
+console.log('Delat dokument – kodversion ' + KODVERSION);
+
+/* Liten läsbar diagnostik, avsedd att köras i webbläsarens konsol när något
+   beter sig konstigt. Skriver ingenting och ändrar ingenting. */
+window.delatDokument = {
+  version: KODVERSION,
+  tillstand() {
+    if (!session) return { vy: 'startsidan' };
+    return {
+      version: KODVERSION,
+      dokument: session.id,
+      ansluten: session.synk.ansluten,
+      jag: Lagring.lasProfil(),
+      deltagare: [...session.synk.awareness.getStates()].map(([id, t]) => ({
+        klient: id,
+        jagSjalv: id === session.synk.doc.clientID,
+        namn: t?.user?.fulltNamn || t?.user?.name,
+        skriver: t?.user?.skriver ?? null,
+        harMarkor: Boolean(t?.cursor)
+      })),
+      lastaStycken: [...session.las].map(([sektion, karta]) => ({
+        sektion,
+        antal: karta.size,
+        av: [...karta.values()].map(v => v.namn)
+      }))
+    };
+  }
+};
 
 window.addEventListener('hashchange', router);
 router();

@@ -386,3 +386,30 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
   white-space: nowrap;
 }
 #hist-taagare { margin-right: 8px; }
+
+/* ---------- Upptaget stycke ---------- */
+
+.ql-editor .stycke-last {
+  background: color-mix(in srgb, var(--lasfarg) 12%, transparent);
+  box-shadow: inset 2px 0 0 var(--lasfarg);
+  border-radius: 2px;
+  cursor: not-allowed;
+}
+
+.lasbesked {
+  position: fixed;
+  left: 50%;
+  bottom: 56px;
+  transform: translateX(-50%) translateY(8px);
+  background: var(--text);
+  color: #fff;
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: var(--radie);
+  box-shadow: inset 3px 0 0 var(--lasfarg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+  z-index: 30;
+}
+.lasbesked.syns { opacity: 1; transform: translateX(-50%) translateY(0); }
