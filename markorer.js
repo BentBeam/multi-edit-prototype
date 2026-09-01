@@ -4,11 +4,15 @@
  * textruta, men flyttar den bara i rutan där personen faktiskt står. I de
  * övriga blir en markör kvar på position noll.
  *
- * Filen rättar också markörens placering vid mjuka radbrytningar. Där har ett
- * och samma textindex två visuella platser – slutet av raden ovan och början av
+ * Filen rättar också markörens placering vid radbrytningar. Där har ett och
+ * samma textindex två visuella platser – slutet av raden ovan och början av
  * raden under – och Quill svarar alltid med den senare. Skriver någon förbi
  * radbrytningen hamnar deras markör därför i början av nästa rad i stället för
  * där de står.
+ *
+ * Vilken av de två platserna som är den rätta går inte att räkna ut från
+ * indexet. Bara den skrivandes egen webbläsare vet det, och den får svara:
+ * sammaRadSomFore mäts lokalt och skickas med i närvarodatan.
  *
  * Städningen måste ske i samma arbetspass som kopplingens egen uppdatering,
  * innan webbläsaren hinner rita om. Med fördröjning hinner den felplacerade
@@ -21,6 +25,36 @@
 
 import * as Y from 'yjs';
 import { allaRutor } from './rutor.js';
+
+/* Står min egen markör på samma rad som tecknet före den?
+ *
+ * Webbläsaren har redan svarat på frågan när den ritade min markör – vi behöver
+ * bara läsa av var den hamnade och jämföra med tecknet före. Svaret skickas
+ * vidare i närvarodatan, för de andra kan inte räkna ut det själva.
+ *
+ * Falskt är det försiktiga svaret: då lämnas Quills egen placering orörd. */
+export function sammaRadSomFore(quill) {
+  const markering = window.getSelection();
+  if (!markering || markering.rangeCount === 0) return false;
+
+  const min = markering.getRangeAt(0);
+  if (!min.collapsed) return false;
+  if (!quill.root.contains(min.startContainer)) return false;
+
+  const nod = min.startContainer;
+  if (nod.nodeType !== Node.TEXT_NODE) return false;
+  if (min.startOffset === 0) return false;
+
+  const fore = document.createRange();
+  fore.setStart(nod, min.startOffset - 1);
+  fore.setEnd(nod, min.startOffset);
+
+  const harJag = min.getBoundingClientRect();
+  const harFore = fore.getBoundingClientRect();
+  if (!harJag.height || !harFore.height) return false;
+
+  return Math.abs(harJag.top - harFore.top) < 1;
+}
 
 /* Var i texten står deltagarens markör? Null om den inte hör hit. */
 function indexFor(synk, tillstand, ytext) {
@@ -91,6 +125,7 @@ export function markorlage(synk, redigerare) {
           finnsINarvaro: Boolean(deltagartillstand),
           harMarkorfalt: Boolean(deltagartillstand?.cursor),
           horHemma: horHemma(synk, deltagartillstand, ytext),
+          radbesked: deltagartillstand?.markor?.sammaRadSomFore ?? 'inget',
           synlig: getComputedStyle(element).display !== 'none',
           index,
           textlangd: ytext.length,
@@ -107,14 +142,16 @@ export function markorlage(synk, redigerare) {
 /* Var ska markören stå, om Quills svar behöver rättas?
  *
  * Returnerar null när det inte finns något att rätta: vid en hård radbrytning är
- * platsen entydig, och ligger index på samma rad som tecknet före är allt bra.
+ * platsen entydig, ligger index redan på samma rad som tecknet före är allt bra,
+ * och har deltagaren svarat att de står först på den nya raden är Quills svar
+ * det rätta.
  *
- * Vid en mjuk radbrytning är index tvetydigt och vi väljer slutet av raden
- * ovanför. Det är fallet när någon skriver förbi radbrytningen, vilket är det
- * vanliga. Priset är att den som medvetet ställer sig först på en radbruten rad
- * visas i slutet av raden över. */
-function rattadPlats(quill, ytext, index) {
+ * Saknas svaret rättar vi ändå. En deltagare med äldre kod skickar inget, och då
+ * är slutet av raden ovan den bättre gissningen: att skriva framåt är det
+ * vanliga. */
+function rattadPlats(quill, ytext, index, radbesked) {
   if (index === null || index <= 0) return null;
+  if (radbesked === false) return null;
 
   const text = ytext.toString();
   if (text[index - 1] === '\n') return null;
@@ -171,7 +208,12 @@ export function stadaMarkorer(synk, redigerare) {
 
       /* Markören hör hemma här – rätta placeringen om den hamnat i början av
          nästa rad i stället för i slutet av den här. */
-      const plats = rattadPlats(quill, ytext, indexFor(synk, deltagartillstand, ytext));
+      const plats = rattadPlats(
+        quill,
+        ytext,
+        indexFor(synk, deltagartillstand, ytext),
+        deltagartillstand?.markor?.sammaRadSomFore
+      );
       if (plats) flyttaMarkor(element, plats);
     });
   });

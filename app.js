@@ -12,7 +12,7 @@ import {
 } from './kommentarer.js';
 import { registreraMig, forfattare, forfattarrader, hittaDeltagare } from './forfattare.js';
 import * as historik from './historik.js';
-import { stadaMarkorer, markorlage } from './markorer.js';
+import { stadaMarkorer, markorlage, sammaRadSomFore } from './markorer.js';
 import { uppdateraLas, arLast, glomLas } from './rutlas.js';
 import {
   rutaId, rutorFor, allaRutor, antalRutor, kanLaggaTill, laggTill, slaIhop,
@@ -475,7 +475,18 @@ function byggRuta(behallare, sektion, rutaid) {
     ritaPanel();
     if (visaForfattare) ritaForfattarvy();
     schemalaggMarkorstadning();
+    beskedOmRad();
   });
+
+  /* Vid en radbrytning står två visuella platser bakom samma index, och bara den
+     här webbläsaren vet vilken min markör hamnade på. Svaret skickas med så att
+     de andra kan rita markören där jag faktiskt står. */
+  function beskedOmRad() {
+    if (!quill.hasFocus()) return;
+    session.synk.sattSammaRadSomFore(sammaRadSomFore(quill));
+  }
+
+  quill.on('selection-change', beskedOmRad);
 
   /* Hindrar inmatning i en ruta någon annan har markören i. beforeinput fångar
      tangenttryck, inklistring och radering innan något ändrats. */

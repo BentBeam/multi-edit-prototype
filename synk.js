@@ -55,6 +55,16 @@ export function anslut(dokumentId, profil) {
     }, TYSTNAD_MS);
   }
 
+  /* Vid en radbrytning har ett och samma textindex två visuella platser: slutet
+     av raden ovan och början av raden under. Vilken av dem min markör står på
+     vet bara min egen webbläsare. Därför skickar jag med svaret, i stället för
+     att de andra ska gissa. */
+  function sattSammaRadSomFore(varde) {
+    const nu = awareness.getLocalState()?.markor;
+    if (nu && nu.sammaRadSomFore === varde) return;
+    awareness.setLocalStateField('markor', { sammaRadSomFore: varde });
+  }
+
   return {
     doc,
     provider,
@@ -62,6 +72,9 @@ export function anslut(dokumentId, profil) {
 
     /* Kallas vid varje tangenttryck, så andra ser vem som är i farten. */
     jagSkriver,
+
+    /* Står min markör på samma rad som tecknet före den? Se ovan. */
+    sattSammaRadSomFore,
 
     /* Sant när det inte finns någon server att dela med alls. */
     get saknarServer() {
