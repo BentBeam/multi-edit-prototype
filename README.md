@@ -143,6 +143,9 @@ gömdes efter några sekunder.
 egen uppdatering – lyssnarna registreras därför efter kopplingarnas. Med
 fördröjning hinner den felplacerade markören blinka till.
 
+Städningen går igenom varje ruta, inte varje sektion. Missar man tilläggsrutorna
+städas deras markörer aldrig – det felet gjorde jag när rutorna infördes.
+
 Städningen körs också direkt när dokumentet öppnats. Kopplingen skapar nämligen
 markörer för alla som redan är inne redan i sin konstruktor, alltså innan våra
 lyssnare finns – utan den körningen låg felplacerade markörer kvar ända tills

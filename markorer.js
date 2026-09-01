@@ -14,7 +14,7 @@
  */
 
 import * as Y from 'yjs';
-import { SEKTIONER } from './config.js';
+import { allaRutor } from './rutor.js';
 
 /* Hör deltagarens markör hemma i den här texten? */
 function horHemma(synk, tillstand, ytext) {
@@ -33,14 +33,16 @@ function horHemma(synk, tillstand, ytext) {
 export function stadaMarkorer(synk, redigerare) {
   const tillstand = synk.awareness.getStates();
 
-  SEKTIONER.forEach(sektion => {
-    const quill = redigerare[sektion.key];
+  /* Varje ruta, inte varje sektion: en sektion kan ha tillhörande rutor, och
+     glömmer man dem städas deras markörer aldrig. */
+  allaRutor(synk).forEach(({ id }) => {
+    const quill = redigerare[id];
     if (!quill) return;
 
     const behallare = quill.container.querySelector('.ql-cursors');
     if (!behallare) return;
 
-    const ytext = synk.text(sektion.key);
+    const ytext = synk.text(id);
 
     behallare.querySelectorAll('.ql-cursor').forEach(element => {
       const klientId = Number(element.id.replace('ql-cursor-', ''));
