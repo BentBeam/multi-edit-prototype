@@ -177,6 +177,30 @@ Quills svar: vid brytpunkten (index 116) ritas markören i slutet av raden ovan
 när skribenten står där, och först på nästa rad när skribenten står där. Samma
 index, två svar, båda rätt.
 
+### transformOnTextChange måste vara av
+
+Det här var den verkliga orsaken till att markören hamnade på fel plats, och den
+kostade fyra felaktiga fixar.
+
+`quill-cursors` kan räkna om varje markörs index vid varje textändring
+(`transformOnTextChange`). Det är av som standard i biblioteket — vi hade slagit
+på det själva. Med `y-quill` blir det fel: y-quill har redan satt rätt position
+ur Yjs för samma ändring, så flytten sker två gånger. Markören kryper framåt ett
+steg per tangenttryck, och när indexet passerar texten klämmer biblioteket det
+till sista giltiga position — början av det tomma sista stycket, längst till
+vänster på raden under texten.
+
+Positionen läses nu i stället om ur Yjs vid varje städning i `markorer.js`.
+Relativa positioner pekar på ett tecken, inte på ett tal, och är den enda källan
+värd att lita på. Ett index som räknats om av något annat är en gissning.
+
+**Felet syns bara medan någon skriver.** Ett test som slutar med ett klick eller
+en satt markering ger en ny position ur Yjs utan efterföljande textändring, och
+då ser allt rätt ut. Fyra testrundor missade felet av precis det skälet. Verifiera
+alltid mitt i en skrivsvit: efter 63 tangenttryck ska mottagarens index vara
+identiskt med skribentens, och markören ritas på samma pixel som textens egen
+rektangel för det indexet.
+
 Kopplingen mellan Quill och Yjs skapar en markör för varje deltagare i varje
 textruta, men flyttar den bara i rutan där personen faktiskt står. I de övriga
 blir en markör kvar på position noll. Det märktes inte så länge etiketterna
