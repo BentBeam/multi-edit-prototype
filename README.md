@@ -102,7 +102,13 @@ ihop, och en markör vid en styckesgräns hör tvetydigt till båda – det gav
 gränsfall som inte gick att få rätt, och felplacerade markörer på skärmen.
 
 En ruta räknas som upptagen så länge någon annan har markören där, oavsett om
-hen skriver just nu. Märket i sektionsrubriken skiljer på "är här" och "skriver
+hen skriver just nu.
+
+Hamnar två personer i samma ruta måste en av dem få den, annars låser de ut
+varandra och ingen kan skriva. Den med lägst deltagarnummer vinner. Numret är
+slumpat, men båda webbläsarna ser samma siffror och kommer därför fram till
+samma svar utan att fråga varandra. Den som förlorar får beskedet och kan flytta
+sig eller lägga till ett eget fält – det är själva poängen med tilläggen. Märket i sektionsrubriken skiljer på "är här" och "skriver
 här".
 
 Markören försvinner ur närvarodatan så fort fönstret tappar fokus, alltså varje

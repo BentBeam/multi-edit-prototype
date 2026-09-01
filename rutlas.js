@@ -1,5 +1,11 @@
 /* Hindrar två personer från att skriva i samma textruta.
  *
+ * Hamnar två personer i samma ruta måste en av dem få den, annars låser de ut
+ * varandra och ingen kan skriva. Den med lägst deltagarnummer vinner. Numret är
+ * slumpat men båda webbläsarna ser samma siffror, så båda kommer fram till
+ * samma svar utan att behöva fråga varandra. Den som förlorar får beskedet och
+ * kan flytta sig eller lägga till ett eget fält.
+ *
  * En ruta räknas som upptagen så länge någon annan har sin markör där – inte
  * bara medan hen skriver. Det gör regeln lätt att förstå: står någons markör i
  * rutan är den hens. Låset släpper när personen klickar någon annanstans,
@@ -32,24 +38,26 @@ const FRIST_MS = 20000;
 /* klientId -> { sektionsnyckel, vem, sistSedd } */
 const senastKanda = new Map();
 
-/* Var har varje annan deltagare sin markör? Kompletteras med de rutor någon
-   nyligen lämnat, så en kort fönsterväxling inte frigör texten. */
-function vemVar(synk) {
+/* Var har varje deltagare sin markör, jag själv inräknad?
+ *
+ * Kompletteras med de rutor någon nyligen lämnat, så en kort fönsterväxling
+ * inte frigör texten. Returnerar för varje ruta den deltagare som äger den:
+ * lägst deltagarnummer vinner om flera står i samma ruta.
+ */
+function agarePerRuta(synk) {
   const narvarande = new Set();
   const nu = Date.now();
 
   synk.awareness.getStates().forEach((tillstand, klientId) => {
-    if (klientId === synk.doc.clientID) return;
     narvarande.add(klientId);
-    if (!tillstand?.user) return;
+    if (!tillstand?.user || !tillstand.cursor) return;
 
     const vem = {
+      klientId,
       namn: tillstand.user.fulltNamn || tillstand.user.name,
       farg: tillstand.user.color,
       skriver: Boolean(tillstand.user.skriver)
     };
-
-    if (!tillstand.cursor) return;
 
     try {
       const plats = Y.createAbsolutePositionFromRelativePosition(
@@ -74,14 +82,23 @@ function vemVar(synk) {
 
   const perRuta = new Map();
   senastKanda.forEach(post => {
-    if (!perRuta.has(post.rutaid)) perRuta.set(post.rutaid, post.vem);
+    const nuvarande = perRuta.get(post.rutaid);
+    if (!nuvarande || post.vem.klientId < nuvarande.klientId) {
+      perRuta.set(post.rutaid, post.vem);
+    }
   });
   return perRuta;
 }
 
 /* Märker upp upptagna rutor och returnerar vilka de är. */
 export function uppdateraLas(synk, redigerare) {
-  const last = vemVar(synk);
+  const agare = agarePerRuta(synk);
+  const last = new Map();
+
+  /* Äger jag rutan är den inte låst för mig, även om någon annan står där. */
+  agare.forEach((vem, rutaid) => {
+    if (vem.klientId !== synk.doc.clientID) last.set(rutaid, vem);
+  });
 
   allaRutor(synk).forEach(({ id }) => {
     const ruta = document.getElementById('ruta-' + id);
