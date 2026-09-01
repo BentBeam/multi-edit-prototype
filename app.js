@@ -462,8 +462,14 @@ function byggRuta(behallare, sektion, rutaid) {
     modules: {
       toolbar: false,
       /* Att etiketten alltid syns styrs i stilmallen, inte här – biblioteket
-         döljer den med css, inte med fördröjningen. */
-      cursors: { transformOnTextChange: true }
+         döljer den med css, inte med fördröjningen.
+
+         transformOnTextChange MÅSTE vara av. Slår man på den räknar biblioteket
+         om de andras markörpositioner vid varje textändring – men y-quill har
+         redan satt rätt position ur Yjs för samma ändring, så flytten sker två
+         gånger och markören kryper framåt tills den fastnar i textens slut.
+         Se markorer.js. */
+      cursors: { transformOnTextChange: false }
     }
   });
 

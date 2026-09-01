@@ -1,4 +1,18 @@
-/* Ser till att en deltagares markör bara syns i den textruta hen står i.
+/* Håller de andras markörer på rätt plats.
+ *
+ * Grundregeln: positionen läses om ur Yjs varje gång. quill-cursors håller ett
+ * eget index som det räknar om vid varje textändring, och med y-quill blir det
+ * fel – y-quill har redan satt rätt position ur Yjs för samma ändring, så
+ * flytten sker två gånger. Markören kryper då framåt ett steg per tangenttryck
+ * tills indexet passerar texten, och biblioteket klämmer det till sista
+ * giltiga position: början av det tomma sista stycket. Därför är
+ * transformOnTextChange av i app.js, och därför sätts positionen om här.
+ *
+ * Felet syns BARA medan någon skriver. Ett test som slutar med ett klick eller
+ * en satt markering ger en ny position utan efterföljande textändring, och då
+ * ser allt rätt ut. Testa alltid under pågående skrivande.
+ *
+ * Ser också till att en deltagares markör bara syns i den textruta hen står i.
  *
  * Kopplingen mellan Quill och Yjs skapar en markör för varje deltagare i varje
  * textruta, men flyttar den bara i rutan där personen faktiskt står. I de
@@ -54,6 +68,30 @@ export function sammaRadSomFore(quill) {
   if (!harJag.height || !harFore.height) return false;
 
   return Math.abs(harJag.top - harFore.top) < 1;
+}
+
+/* Vilket intervall står deltagaren på? Null om det inte hör hit.
+ *
+ * Yjs relativa positioner är den enda källan vi litar på. De pekar på ett
+ * tecken, inte på ett tal, och överlever därför att andra skriver samtidigt.
+ * Ett index som räknats om av någon annan än Yjs är alltid en gissning. */
+function intervallFor(synk, tillstand, ytext) {
+  if (!tillstand || !tillstand.cursor) return null;
+  try {
+    const borjan = Y.createAbsolutePositionFromRelativePosition(
+      Y.createRelativePositionFromJSON(tillstand.cursor.anchor),
+      synk.doc
+    );
+    const slutet = Y.createAbsolutePositionFromRelativePosition(
+      Y.createRelativePositionFromJSON(tillstand.cursor.head),
+      synk.doc
+    );
+    if (!borjan || borjan.type !== ytext) return null;
+    if (!slutet || slutet.type !== ytext) return { index: borjan.index, length: 0 };
+    return { index: borjan.index, length: slutet.index - borjan.index };
+  } catch {
+    return null;
+  }
 }
 
 /* Var i texten står deltagarens markör? Null om den inte hör hit. */
@@ -204,6 +242,15 @@ export function stadaMarkorer(synk, redigerare) {
         const markorer = quill.getModule('cursors');
         if (markorer) markorer.removeCursor(String(klientId));
         return;
+      }
+
+      /* Sätt om positionen ur Yjs varje gång. Biblioteket håller ett eget index
+         som det räknar om vid textändringar, och det driver isär från sanningen;
+         det här skriver över gissningen med det som faktiskt gäller. */
+      const intervall = intervallFor(synk, deltagartillstand, ytext);
+      if (intervall) {
+        const markorer = quill.getModule('cursors');
+        if (markorer) markorer.moveCursor(String(klientId), intervall);
       }
 
       /* Markören hör hemma här – rätta placeringen om den hamnat i början av
