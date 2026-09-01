@@ -84,7 +84,13 @@ påtvingade css-regler. Biblioteket döljer den annars efter tre sekunder.
 Kopplingen mellan Quill och Yjs skapar en markör för varje deltagare i varje
 textruta, men flyttar den bara i rutan där personen faktiskt står. I de övriga
 blir en markör kvar på position noll. Det märktes inte så länge etiketterna
-gömdes efter några sekunder. `markorer.js` tar bort dem.
+gömdes efter några sekunder.
+
+`markorer.js` löser det genom att markörer är dolda som standard och får klassen
+`hor-hemma` först när positionen kontrollerats. Att i stället ta bort dem i
+efterhand räckte inte – de hann ritas ut och blinka till på fel ställe. Med den
+här ordningen går en förflyttning mellan textrutor via ingen markör alls i
+stället för via en felplacerad.
 
 ## Om författarfärgningen
 

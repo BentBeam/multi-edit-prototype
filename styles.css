@@ -216,6 +216,10 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
 .prick.gra { background: var(--text-svag); }
 .prick.gul { background: #ba7517; }
 
+/* En markör är dold tills den kontrollerats höra hemma i just den här
+   textrutan. Utan det hinner kopplingens felplacerade markörer blinka till. */
+.ql-cursors .ql-cursor:not(.hor-hemma) { display: none; }
+
 /* Initialerna ovanför andras markörer i texten.
    Biblioteket döljer etiketten som standard och visar den bara en kort stund
    efter en rörelse. Vi vill se vem som står var hela tiden. Reglerna måste vara

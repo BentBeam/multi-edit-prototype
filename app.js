@@ -456,13 +456,14 @@ function satLast(last) {
 function schemalaggMarkorstadning() {
   if (!session || session.stadningPlanerad) return;
   session.stadningPlanerad = true;
-  /* Fördröjning i stället för requestAnimationFrame – den senare pausas i
-     flikar som ligger i bakgrunden, och då städas ingenting. */
+  /* Noll fördröjning: körs direkt efter att kopplingen ritat klart, men innan
+     bilden målas om. Fördröjning i stället för requestAnimationFrame, som
+     pausas i flikar som ligger i bakgrunden. */
   setTimeout(() => {
     if (!session) return;
     session.stadningPlanerad = false;
     stadaMarkorer(session.synk, session.redigerare);
-  }, 60);
+  }, 0);
 }
 
 /* ---------- Närvaro och anslutning ---------- */
