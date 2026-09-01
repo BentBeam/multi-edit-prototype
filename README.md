@@ -162,10 +162,20 @@ samma textindex två visuella platser – slutet av raden ovan och början av ra
 under – och Quill svarar alltid med den senare. Skriver någon förbi
 radbrytningen hamnade deras markör därför längst till vänster på nästa rad.
 
-Rättningen väljer slutet av raden ovanför, eftersom det är fallet när någon
-skriver framåt. Priset är att den som medvetet ställer sig först på en radbruten
-rad visas i slutet av raden över. Vid en hård radbrytning är platsen entydig och
-då rättas ingenting.
+Vilken av de två platserna som är den rätta går inte att räkna ut från indexet.
+Bara den skrivandes egen webbläsare vet det – den har ju redan ritat markören.
+Därför mäter varje webbläsare sin egen markör mot tecknet före den och skickar
+svaret vidare i närvarodatan, som `markor.sammaRadSomFore`. De andra rättar bara
+när svaret säger att markören står i slutet av raden ovan.
+
+Saknas svaret rättas det ändå, för då kör deltagaren äldre kod och slutet av
+raden ovan är den bättre gissningen. Vid en hård radbrytning är platsen entydig
+och då rättas ingenting.
+
+Mätt i ett fönster på 1280 px, mot textens egna `getClientRects()` och inte mot
+Quills svar: vid brytpunkten (index 116) ritas markören i slutet av raden ovan
+när skribenten står där, och först på nästa rad när skribenten står där. Samma
+index, två svar, båda rätt.
 
 Kopplingen mellan Quill och Yjs skapar en markör för varje deltagare i varje
 textruta, men flyttar den bara i rutan där personen faktiskt står. I de övriga
