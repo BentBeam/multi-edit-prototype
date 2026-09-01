@@ -157,6 +157,16 @@ luft mellan raderna medan flaggan är 15,5 px hög. Ovanför täcker den alltså
 alltid en bit av raden över, vilket ser ut som att markören står på fel rad.
 Vill du ha den ovanför igen krävs en radhöjd runt 34 px.
 
+`markorer.js` rättar också placeringen vid mjuka radbrytningar. Där har ett och
+samma textindex två visuella platser – slutet av raden ovan och början av raden
+under – och Quill svarar alltid med den senare. Skriver någon förbi
+radbrytningen hamnade deras markör därför längst till vänster på nästa rad.
+
+Rättningen väljer slutet av raden ovanför, eftersom det är fallet när någon
+skriver framåt. Priset är att den som medvetet ställer sig först på en radbruten
+rad visas i slutet av raden över. Vid en hård radbrytning är platsen entydig och
+då rättas ingenting.
+
 Kopplingen mellan Quill och Yjs skapar en markör för varje deltagare i varje
 textruta, men flyttar den bara i rutan där personen faktiskt står. I de övriga
 blir en markör kvar på position noll. Det märktes inte så länge etiketterna
