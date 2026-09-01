@@ -151,11 +151,17 @@ Biblioteket speglar flaggan när den inte får plats till höger om markören, o
 byter det raka hörnet sida – därför finns en regel för `.flag-flipped` också.
 Radien måste påtvingas eftersom biblioteket sätter en egen.
 
-Flaggan står vid sidan av markören, inte ovanför den. Biblioteket lyfter den en
-hel flagghöjd uppåt, men radhöjden är 24 px och markören 17,5 px – det ger 6,5 px
-luft mellan raderna medan flaggan är 15,5 px hög. Ovanför täcker den alltså
-alltid en bit av raden över, vilket ser ut som att markören står på fel rad.
-Vill du ha den ovanför igen krävs en radhöjd runt 34 px.
+Flaggan sitter ovanpå markörstrecket, lyft 16 px, med samma vänsterkant som
+strecket. Uppriktningen är `translate3d(-1px, -16px, 0)`. Minustecknet på 1 px är
+ingen avståndsväljare: flaggan och streckets behållare får samma nollpunkt av
+biblioteket, och strecket är 2 px brett och ritas centrerat kring den
+(`margin-left: -1px`), så dess vänsterkant ligger 1 px till vänster. Mätt i drift
+låg båda kanterna på 598, lyftet var 16 px, och flaggans underkant landade på
+streckets överkant.
+
+Priset: radhöjden är 24 px och strecket 18 px, alltså 6 px luft mellan raderna
+medan flaggan är 16 px hög. Står det text på raden ovanför täcker flaggan en del
+av den. Vill man ha den helt fri krävs en radhöjd på 32 px.
 
 `markorer.js` rättar också placeringen vid mjuka radbrytningar. Där har ett och
 samma textindex två visuella platser – slutet av raden ovan och början av raden
@@ -287,3 +293,14 @@ serverns kopia.
 Genvägen mellan flikar i samma webbläsare är avstängd med avsikt (`disableBc`
 i `synk.js`). Med den påslagen kan två flikar synka lokalt även när servern är
 nere, vilket får delning att se ut att fungera när den inte gör det.
+
+
+## Mått och avstånd
+
+Alla mått och avstånd under 48 px ligger på skalan **2 / 4 / 8 / 16 / 24 / 32 /
+40 / 48 px**. Vid lika avstånd till två steg rundas uppåt — annars dras hela
+gränssnittet ihop 4 px överallt.
+
+Typsnittsgraderna följer INTE skalan, och ska inte göra det: en typografisk skala
+med bara 8, 16 och 24 px blir oläslig. Detsamma gäller 1 px-linjer och
+layoutmåtten över 48 px (spaltbredder, `min-height: 150px` på textrutorna).
