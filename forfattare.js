@@ -27,18 +27,29 @@ export function hittaDeltagare(synk, klientId) {
   return karta(synk).get(String(klientId)) || null;
 }
 
-/* Vilka som har skrivit något i dokumentet, i den ordning de dyker upp. */
+/* Vilka som har skrivit något i dokumentet, i den ordning de dyker upp.
+ *
+ * Räknas per person, inte per deltagarnummer. Numret är slumpat per session, så
+ * samma person som laddat om sidan tre gånger har tre nummer – och dök därför
+ * upp tre gånger i teckenförklaringen.
+ */
 export function forfattare(synk) {
   const ut = [];
-  const sedda = new Set();
+  const seddaPersoner = new Set();
 
   synk.doc.share.forEach((_, nyckel) => {
     if (!nyckel.startsWith('sektion:')) return;
+
     forfattarrader(synk.doc.getText(nyckel)).forEach(rad => {
-      if (sedda.has(rad.klient)) return;
-      sedda.add(rad.klient);
       const person = hittaDeltagare(synk, rad.klient);
-      ut.push({ klient: rad.klient, namn: person?.namn || 'Okänd', farg: person?.farg || '#a5a5a0' });
+      const namn = person?.namn || 'Okänd';
+      const farg = person?.farg || '#a5a5a0';
+
+      const nyckelPerson = namn + '|' + farg;
+      if (seddaPersoner.has(nyckelPerson)) return;
+      seddaPersoner.add(nyckelPerson);
+
+      ut.push({ namn, farg });
     });
   });
 

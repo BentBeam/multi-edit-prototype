@@ -9,7 +9,7 @@ import {
   registreraFormat, nyttTradId, skapaTrad, laggTillSvar, markeraLost,
   tradar, lyssna, taBortMarkering
 } from './kommentarer.js';
-import { registreraMig, forfattare, forfattarrader } from './forfattare.js';
+import { registreraMig, forfattare, forfattarrader, hittaDeltagare } from './forfattare.js';
 import * as historik from './historik.js';
 import { stadaMarkorer } from './markorer.js';
 import { uppdateraLas, arLast, glomLas } from './rutlas.js';
@@ -928,10 +928,11 @@ function ritaForfattarvy() {
   });
 }
 
-/* Slår upp en deltagare, med reserv för text skriven innan kartan fanns. */
+/* Slår upp en deltagare på nummer, med reserv för text skriven innan kartan
+   fanns. Används för att färga texten – där behövs numret, till skillnad från
+   teckenförklaringen som räknar personer. */
 function personFor(klientId) {
-  const personer = forfattare(session.synk);
-  return personer.find(p => p.klient === klientId)
+  return hittaDeltagare(session.synk, klientId)
     || { namn: 'Okänd', farg: '#a5a5a0' };
 }
 
