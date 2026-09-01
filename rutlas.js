@@ -18,6 +18,7 @@
 
 import * as Y from 'yjs';
 import { SEKTIONER } from './config.js';
+import { allaRutor, rutorFor } from './rutor.js';
 
 /* Hur länge en ruta hålls kvar efter att personens markör försvunnit.
  *
@@ -57,8 +58,8 @@ function vemVar(synk) {
       );
       if (!plats) return;
 
-      const sektion = SEKTIONER.find(s => synk.text(s.key) === plats.type);
-      if (sektion) senastKanda.set(klientId, { sektionsnyckel: sektion.key, vem, sistSedd: nu });
+      const ruta = allaRutor(synk).find(r => synk.text(r.id) === plats.type);
+      if (ruta) senastKanda.set(klientId, { rutaid: ruta.id, vem, sistSedd: nu });
     } catch {
       /* Positionen gick inte att tolka – lämna det senast kända orört. */
     }
@@ -71,41 +72,40 @@ function vemVar(synk) {
     }
   });
 
-  const perSektion = new Map();
+  const perRuta = new Map();
   senastKanda.forEach(post => {
-    if (!perSektion.has(post.sektionsnyckel)) perSektion.set(post.sektionsnyckel, post.vem);
+    if (!perRuta.has(post.rutaid)) perRuta.set(post.rutaid, post.vem);
   });
-  return perSektion;
+  return perRuta;
 }
 
 /* Märker upp upptagna rutor och returnerar vilka de är. */
 export function uppdateraLas(synk, redigerare) {
   const last = vemVar(synk);
 
-  SEKTIONER.forEach(sektion => {
-    const quill = redigerare[sektion.key];
-    if (!quill) return;
+  allaRutor(synk).forEach(({ id }) => {
+    const ruta = document.getElementById('ruta-' + id);
+    if (!ruta) return;
 
-    const block = document.getElementById('sektion-' + sektion.key);
-    const vem = last.get(sektion.key) || null;
-    if (!block) return;
-
-    block.classList.toggle('ruta-upptagen', Boolean(vem));
+    const vem = last.get(id) || null;
+    ruta.classList.toggle('ruta-upptagen', Boolean(vem));
 
     if (vem) {
-      block.style.setProperty('--upptagenfarg', vem.farg);
+      ruta.style.setProperty('--upptagenfarg', vem.farg);
     } else {
-      block.style.removeProperty('--upptagenfarg');
+      ruta.style.removeProperty('--upptagenfarg');
     }
 
-    /* Beskedet i sektionsrubriken: vem, och om hen skriver just nu. */
-    let marke = block.querySelector('.upptagen-marke');
-    if (vem && !marke) {
+    /* Beskedet i rutans huvud: vem, och om hen skriver just nu. */
+    const huvud = ruta.querySelector('.ruta-huvud');
+    let marke = ruta.querySelector('.upptagen-marke');
+
+    if (vem && !marke && huvud) {
       marke = document.createElement('span');
       marke.className = 'upptagen-marke';
-      block.querySelector('.sektion-huvud').append(marke);
+      huvud.append(marke);
     }
-    if (vem) {
+    if (vem && marke) {
       marke.textContent = vem.namn + (vem.skriver ? ' skriver här' : ' är här');
     } else if (marke) {
       marke.remove();
@@ -116,8 +116,8 @@ export function uppdateraLas(synk, redigerare) {
 }
 
 /* Är rutan upptagen av någon annan? */
-export function arLast(last, sektionsnyckel) {
-  return last?.get(sektionsnyckel) || null;
+export function arLast(last, rutaid) {
+  return last?.get(rutaid) || null;
 }
 
 /* Glömmer allt när man lämnar ett dokument, så inget hänger med till nästa. */

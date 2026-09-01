@@ -389,12 +389,12 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
 
 /* ---------- Upptagen textruta ---------- */
 
-.sektion.ruta-upptagen .ql-container.ql-snow {
+.ruta.ruta-upptagen .ql-container.ql-snow {
   border-color: var(--upptagenfarg);
   background: color-mix(in srgb, var(--upptagenfarg) 6%, var(--yta));
   cursor: not-allowed;
 }
-.sektion.ruta-upptagen .ql-editor { cursor: not-allowed; }
+.ruta.ruta-upptagen .ql-editor { cursor: not-allowed; }
 
 .upptagen-marke {
   margin-left: auto;
@@ -420,3 +420,37 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
   z-index: 30;
 }
 .lasbesked.syns { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ---------- Rutor per sektion ---------- */
+
+.rutor { display: flex; flex-direction: column; gap: 10px; }
+
+.ruta-huvud {
+  display: flex; align-items: center; gap: 10px;
+  min-height: 0; margin-bottom: 4px;
+}
+.ruta-huvud:empty { display: none; }
+.ruta-etikett { font-size: 12px; color: var(--text-dampad); }
+.ruta-etikett:empty { display: none; }
+.ruta-knappar { display: flex; gap: 6px; }
+
+.slaihop {
+  font-size: 12px; padding: 3px 9px;
+  border-color: var(--ram);
+  color: var(--text-dampad);
+}
+.slaihop:hover:not(:disabled) { color: var(--text); }
+
+.sektion-fot {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 5px;
+}
+.sektion-fot .raknare { margin: 0; flex: 1; text-align: right; order: 2; }
+.laggtill {
+  order: 1;
+  font-size: 12px; padding: 4px 10px;
+  border-color: var(--ram); color: var(--text-dampad);
+}
+.laggtill:hover:not(:disabled) { color: var(--text); }
+.laggtill[hidden] { display: none; }
+.last .ruta-knappar { display: none; }

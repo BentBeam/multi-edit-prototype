@@ -4,9 +4,12 @@
    statusraden, och skrivs ut i webbläsarens konsol vid start. Finns för att det
    ska gå att avgöra på en sekund om en webbläsare kör den senaste koden – den
    frågan har annars kostat oss mycket tid. */
-export const KODVERSION = '2026-08-31 g';
+export const KODVERSION = '2026-08-31 h';
 
 export const APPNAMN = 'Delat dokument';
+
+/* Hur många tillhörande rutor en sektion får utöver huvudrutan. */
+export const MAX_TILLAGG = 2;
 
 /* Lägg till, ta bort eller döp om sektioner här. Nyckeln (key) måste vara unik
    och bör inte ändras efter att någon börjat skriva – den är det som kopplar

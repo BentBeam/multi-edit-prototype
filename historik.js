@@ -2,7 +2,8 @@
 
 import * as Y from 'yjs';
 import Quill from 'quill';
-import { SYNKSERVER, SEKTIONER } from './config.js';
+import { SYNKSERVER, SEKTIONER, MAX_TILLAGG } from './config.js';
+import { rutaId, tillaggsnummer } from './rutor.js';
 
 const Delta = Quill.import('delta');
 
@@ -59,10 +60,13 @@ export function lasTexter(tillstand) {
     titel: meta.get('titel') || '',
     start: meta.get('start') || '',
     slut: meta.get('slut') || '',
-    sektioner: SEKTIONER.map(sektion => ({
-      rubrik: sektion.rubrik,
-      text: temp.getText('sektion:' + sektion.key).toString()
-    }))
+    sektioner: SEKTIONER.flatMap(sektion => {
+      const antal = Number(meta.get('rutor:' + sektion.key)) || 1;
+      return Array.from({ length: antal }, (_, i) => ({
+        rubrik: i === 0 ? sektion.rubrik : sektion.rubrik + ' – tillägg ' + i,
+        text: temp.getText('sektion:' + rutaId(sektion.key, i)).toString()
+      }));
+    })
   };
 }
 
@@ -79,21 +83,32 @@ export function lasTexter(tillstand) {
  *
  * Statusen återställs medvetet inte, så ett klart dokument inte låses igen.
  */
-export function aterstall(synk, redigerare, tillstand) {
+export function aterstall(synk, tillstand) {
   const temp = new Y.Doc();
   Y.applyUpdate(temp, tillstand);
   const gammalMeta = temp.getMap('meta');
 
-  SEKTIONER.forEach(sektion => {
-    const quill = redigerare[sektion.key];
-    if (!quill) return;
-    const delta = temp.getText('sektion:' + sektion.key).toDelta();
-    quill.setContents(new Delta(delta), 'user');
-  });
-
+  /* Antalet rutor sätts först, så anroparen kan bygga om och sedan fylla dem. */
   synk.doc.transact(() => {
     ['titel', 'start', 'slut'].forEach(falt => {
       synk.meta.set(falt, gammalMeta.get(falt) || '');
     });
+    SEKTIONER.forEach(sektion => {
+      const antal = Number(gammalMeta.get('rutor:' + sektion.key)) || 1;
+      synk.meta.set('rutor:' + sektion.key, Math.min(antal, 1 + MAX_TILLAGG));
+    });
   });
+
+  /* Returnerar texterna, så anroparen kan lägga in dem via redigerarna när
+     rutorna byggts om. Att skriva direkt i den delade texten uppdaterar inte
+     det som visas. */
+  const texter = {};
+  SEKTIONER.forEach(sektion => {
+    const antal = Number(gammalMeta.get('rutor:' + sektion.key)) || 1;
+    for (let i = 0; i < Math.min(antal, 1 + MAX_TILLAGG); i++) {
+      const id = rutaId(sektion.key, i);
+      texter[id] = temp.getText('sektion:' + id).toDelta();
+    }
+  });
+  return texter;
 }

@@ -1,4 +1,5 @@
 import Quill from 'quill';
+const QuillDelta = Quill.import('delta');
 import QuillCursors from 'quill-cursors';
 import { QuillBinding } from 'y-quill';
 
@@ -13,6 +14,10 @@ import { registreraMig, forfattare, forfattarrader, hittaDeltagare } from './for
 import * as historik from './historik.js';
 import { stadaMarkorer } from './markorer.js';
 import { uppdateraLas, arLast, glomLas } from './rutlas.js';
+import {
+  rutaId, rutorFor, allaRutor, antalRutor, kanLaggaTill, laggTill, slaIhop,
+  tillaggsnummer, teckenISektion, sektionsnyckelFor
+} from './rutor.js';
 
 Quill.register('modules/cursors', QuillCursors);
 registreraFormat();
@@ -69,8 +74,8 @@ function vadSomSaknas() {
   if (start && slut && slut < start) saknas.push('Slutdatum ligger före startdatum');
 
   SEKTIONER.forEach(sektion => {
-    const quill = session.redigerare[sektion.key];
-    const tecken = quill ? antalTecken(quill) : 0;
+    /* Gränsen gäller sektionen som helhet, alltså huvudrutan plus tilläggen. */
+    const tecken = teckenISektion(session.synk, session.redigerare, sektion.key);
     if (tecken === 0) saknas.push(sektion.rubrik);
     else if (tecken > sektion.maxTecken) saknas.push(sektion.rubrik + ' är för lång');
   });
@@ -230,7 +235,7 @@ function lamnaSession() {
   glomLas();
   if (!session) return;
   clearInterval(session.stadklocka);
-  session.bindningar.forEach(b => b.destroy());
+  Object.values(session.bindningar).forEach(b => b.destroy());
   session.synk.kopplaNed();
   session = null;
 }
@@ -246,7 +251,7 @@ function vyDokument(id) {
 
   Lagring.notera(id);
   const synk = anslut(id, { ...profil, initialer: initialer(profil.namn) });
-  session = { id, synk, redigerare: {}, bindningar: [], harVaritAnsluten: false, las: new Map() };
+  session = { id, synk, redigerare: {}, bindningar: {}, harVaritAnsluten: false, las: new Map() };
 
   app.innerHTML = `
     <header class="topprad">
@@ -293,6 +298,7 @@ function vyDokument(id) {
 
   /* Ändringar som kommer från någon annan. */
   synk.meta.observe(() => {
+    synkaStruktur();
     speglaMeta();
     ritaPanel();
     Lagring.notera(id, {
@@ -371,80 +377,192 @@ function byggFormular() {
   });
 
   const behallare = document.getElementById('sektioner');
+  SEKTIONER.forEach(sektion => byggSektion(behallare, sektion));
+}
 
+/* En sektion: rubrik, dess rutor, teckenräknare och knappen som lägger till. */
+function byggSektion(behallare, sektion) {
+  const block = document.createElement('div');
+  block.className = 'sektion';
+  block.id = 'sektion-' + sektion.key;
+  block.innerHTML = `
+    <div class="sektion-huvud">
+      <h2></h2>
+      <span class="hjalptext"></span>
+    </div>
+    <div class="rutor"></div>
+    <div class="sektion-fot">
+      <span class="raknare"></span>
+      <button class="laggtill" type="button"></button>
+    </div>`;
+
+  block.querySelector('h2').textContent = sektion.rubrik;
+  block.querySelector('.hjalptext').textContent = sektion.hjalptext;
+  behallare.append(block);
+
+  const knapp = block.querySelector('.laggtill');
+  knapp.textContent = '+ Lägg till fält';
+  knapp.title = 'Ett eget fält att skriva i, som senare kan slås ihop uppåt';
+  knapp.addEventListener('click', () => {
+    if (laggTill(session.synk, sektion.key)) byggOmSektion(sektion);
+  });
+
+  ritaRutor(sektion);
+}
+
+/* Bygger sektionens rutor från grunden. */
+function ritaRutor(sektion) {
+  const block = document.getElementById('sektion-' + sektion.key);
+  if (!block) return;
+
+  const behallare = block.querySelector('.rutor');
+  behallare.innerHTML = '';
+
+  rutorFor(session.synk, sektion.key).forEach(rutaid => byggRuta(behallare, sektion, rutaid));
+
+  block.querySelector('.laggtill').hidden = !kanLaggaTill(session.synk, sektion.key);
+  block.dataset.antalRutor = String(antalRutor(session.synk, sektion.key));
+
+  uppdateraRaknare(sektion);
+  satLast(session.synk.meta.get('status') === 'klar');
+}
+
+function byggRuta(behallare, sektion, rutaid) {
+  const nummer = tillaggsnummer(rutaid);
+
+  const ruta = document.createElement('div');
+  ruta.className = 'ruta';
+  ruta.id = 'ruta-' + rutaid;
+  ruta.innerHTML = `
+    <div class="ruta-huvud">
+      <span class="ruta-etikett"></span>
+      <span class="ruta-knappar"></span>
+    </div>
+    <div class="redigerare"></div>`;
+
+  if (nummer > 0) {
+    ruta.querySelector('.ruta-etikett').textContent = 'Tillägg ' + nummer;
+
+    const ihop = document.createElement('button');
+    ihop.type = 'button';
+    ihop.className = 'slaihop';
+    ihop.textContent = '↥ Slå ihop uppåt';
+    ihop.addEventListener('click', () => forsokSlaIhop(sektion, nummer));
+    ruta.querySelector('.ruta-knappar').append(ihop);
+  }
+
+  behallare.append(ruta);
+
+  const quill = new Quill(ruta.querySelector('.redigerare'), {
+    theme: 'snow',
+    placeholder: nummer > 0 ? 'Ditt tillägg' : 'Skriv här',
+    modules: {
+      toolbar: false,
+      /* Att etiketten alltid syns styrs i stilmallen, inte här – biblioteket
+         döljer den med css, inte med fördröjningen. */
+      cursors: { transformOnTextChange: true }
+    }
+  });
+
+  const bindning = new QuillBinding(session.synk.text(rutaid), quill, session.synk.awareness);
+
+  quill.on('text-change', (delta, gammal, kalla) => {
+    if (kalla === 'user') session.synk.jagSkriver();
+    uppdateraRaknare(sektion);
+    ritaPanel();
+    if (visaForfattare) ritaForfattarvy();
+    schemalaggMarkorstadning();
+  });
+
+  /* Hindrar inmatning i en ruta någon annan har markören i. beforeinput fångar
+     tangenttryck, inklistring och radering innan något ändrats. */
+  ['beforeinput', 'paste', 'drop'].forEach(handelse => {
+    quill.root.addEventListener(handelse, e => {
+      const vem = arLast(session?.las, rutaid);
+      if (!vem) return;
+      e.preventDefault();
+      visaLasbesked(vem);
+    });
+  });
+
+  kopplaMarkering(quill, rutaid);
+
+  quill.root.addEventListener('click', e => {
+    const traff = e.target.closest('[data-trad]');
+    aktivTrad = traff ? traff.getAttribute('data-trad') : null;
+    ritaKommentarer();
+    if (traff) {
+      document.getElementById('trad-' + aktivTrad)?.scrollIntoView({ block: 'nearest' });
+    }
+  });
+
+  session.redigerare[rutaid] = quill;
+  session.bindningar[rutaid] = bindning;
+}
+
+/* Bygger om en sektion när antalet rutor ändrats, av mig eller någon annan.
+ *
+ * Kopplingarna kastas och skapas på nytt. Det gör att de nya redigerarna läser
+ * rätt innehåll från början – att skriva i den delade texten bakom en
+ * redigerares rygg uppdaterar den nämligen inte. */
+function byggOmSektion(sektion) {
+  if (!session) return;
+
+  rutorFor(session.synk, sektion.key).concat(
+    [1, 2].map(n => rutaId(sektion.key, n))
+  ).forEach(rutaid => {
+    session.bindningar[rutaid]?.destroy();
+    delete session.bindningar[rutaid];
+    delete session.redigerare[rutaid];
+  });
+
+  ritaRutor(sektion);
+  ritaPanel();
+  if (visaForfattare) ritaForfattarvy();
+  schemalaggMarkorstadning();
+}
+
+/* Bygger om de sektioner vars antal rutor ändrats. Kallas när metafälten
+   ändras, så en ruta någon annan lagt till dyker upp här också. */
+function synkaStruktur() {
+  if (!session) return;
   SEKTIONER.forEach(sektion => {
-    const block = document.createElement('div');
-    block.className = 'sektion';
-    block.id = 'sektion-' + sektion.key;
-    block.innerHTML = `
-      <div class="sektion-huvud">
-        <h2></h2>
-        <span class="hjalptext"></span>
-      </div>
-      <div class="redigerare"></div>
-      <div class="raknare"></div>`;
-
-    block.querySelector('h2').textContent = sektion.rubrik;
-    block.querySelector('.hjalptext').textContent = sektion.hjalptext;
-    behallare.append(block);
-
-    const quill = new Quill(block.querySelector('.redigerare'), {
-      theme: 'snow',
-      placeholder: 'Skriv här',
-      modules: {
-        toolbar: false,
-        /* Att etiketten alltid syns styrs i stilmallen, inte här –
-           biblioteket döljer den med css, inte med fördröjningen. */
-        cursors: { transformOnTextChange: true }
-      }
-    });
-
-    /* Kopplar rutan till den delade texten. Härifrån sköter Yjs synken. */
-    const bindning = new QuillBinding(
-      session.synk.text(sektion.key),
-      quill,
-      session.synk.awareness
-    );
-
-    quill.on('text-change', (delta, gammal, kalla) => {
-      if (kalla === 'user') session.synk.jagSkriver();
-      uppdateraRaknare(sektion, quill, block);
-      ritaPanel();
-      if (visaForfattare) ritaForfattarvy();
-      schemalaggMarkorstadning();
-    });
-
-    /* Hindrar inmatning i ett stycke någon annan skriver i. beforeinput fångar
-       tangenttryck, inklistring och radering innan något hunnit ändras. */
-    /* Hindrar inmatning i en ruta någon annan har markören i. beforeinput
-       fångar tangenttryck, inklistring och radering innan något ändrats. */
-    ['beforeinput', 'paste', 'drop'].forEach(handelse => {
-      quill.root.addEventListener(handelse, e => {
-        const vem = arLast(session?.las, sektion.key);
-        if (!vem) return;
-        e.preventDefault();
-        visaLasbesked(vem);
-      });
-    });
-
-    kopplaMarkering(quill, sektion);
-
-    quill.root.addEventListener('click', e => {
-      const traff = e.target.closest('[data-trad]');
-      aktivTrad = traff ? traff.getAttribute('data-trad') : null;
-      ritaKommentarer();
-      if (traff) {
-        document.getElementById('trad-' + aktivTrad)?.scrollIntoView({ block: 'nearest' });
-      }
-    });
-
-    session.redigerare[sektion.key] = quill;
-    session.bindningar.push(bindning);
-    uppdateraRaknare(sektion, quill, block);
+    const block = document.getElementById('sektion-' + sektion.key);
+    if (!block) return;
+    const visat = Number(block.dataset.antalRutor || 1);
+    if (visat !== antalRutor(session.synk, sektion.key)) byggOmSektion(sektion);
   });
 }
 
-/* Skriver in metafälten i formuläret utan att störa den som skriver i dem. */
+async function forsokSlaIhop(sektion, nummer) {
+  const ovan = arLast(session.las, rutaId(sektion.key, nummer - 1));
+  const denna = arLast(session.las, rutaId(sektion.key, nummer));
+  const upptagen = ovan || denna;
+
+  if (upptagen) {
+    visaLasbesked(upptagen);
+    return;
+  }
+
+  const ja = await bekrafta({
+    rubrik: 'Slå ihop tillägg ' + nummer + ' med fältet ovanför?',
+    text: 'Texten läggs sist i fältet ovanför och tilläggsfältet försvinner. '
+        + 'Det går att ångra genom historiken.',
+    jaText: 'Slå ihop'
+  });
+  if (!ja) return;
+
+  /* Kontrollera igen – någon kan ha hunnit ställa sig i rutan. */
+  const nu = arLast(session.las, rutaId(sektion.key, nummer - 1))
+          || arLast(session.las, rutaId(sektion.key, nummer));
+  if (nu) {
+    visaLasbesked(nu);
+    return;
+  }
+
+  if (slaIhop(session.synk, sektion.key, nummer)) byggOmSektion(sektion);
+}
+
 function speglaMeta() {
   const meta = session.synk.meta;
   ['titel', 'start', 'slut'].forEach(falt => {
@@ -456,9 +574,14 @@ function speglaMeta() {
   satLast(meta.get('status') === 'klar');
 }
 
-function uppdateraRaknare(sektion, quill, block) {
-  const kvar = sektion.maxTecken - antalTecken(quill);
+/* Räknaren visar sektionens summa mot dess gräns, inte den enskilda rutans. */
+function uppdateraRaknare(sektion) {
+  const block = document.getElementById('sektion-' + sektion.key);
+  if (!block) return;
+
   const raknare = block.querySelector('.raknare');
+  const kvar = sektion.maxTecken - teckenISektion(session.synk, session.redigerare, sektion.key);
+
   raknare.textContent = kvar >= 0
     ? kvar.toLocaleString('sv-SE') + ' tecken kvar'
     : Math.abs(kvar).toLocaleString('sv-SE') + ' tecken för mycket';
@@ -470,11 +593,14 @@ function satLast(last) {
     const input = document.getElementById(falt);
     if (input) input.disabled = last;
   });
-  SEKTIONER.forEach(sektion => {
-    const quill = session.redigerare[sektion.key];
-    if (!quill) return;
+  Object.entries(session.redigerare).forEach(([rutaid, quill]) => {
     quill.enable(!last);
-    document.getElementById('sektion-' + sektion.key).classList.toggle('last', last);
+    document.getElementById('ruta-' + rutaid)?.classList.toggle('last', last);
+  });
+
+  SEKTIONER.forEach(sektion => {
+    const block = document.getElementById('sektion-' + sektion.key);
+    if (block) block.querySelector('.laggtill').disabled = last;
   });
 }
 
@@ -833,10 +959,19 @@ async function aterstallTill(rum, post) {
   const tillstand = await historik.hamta(rum, post.id);
   if (!tillstand) return;
 
-  historik.aterstall(session.synk, session.redigerare, tillstand);
+  /* Sätter metafälten och antalet rutor, och lämnar tillbaka texterna. */
+  const texter = historik.aterstall(session.synk, tillstand);
   modalLager.hidden = true;
 
-  /* Textrutorna får sitt innehåll via Yjs, men metafälten speglas för hand. */
+  /* Bygg om rutorna så antalet stämmer, och lägg sedan in texterna genom
+     redigerarna – att skriva direkt i den delade texten visas inte. */
+  SEKTIONER.forEach(sektion => byggOmSektion(sektion));
+
+  Object.entries(texter).forEach(([rutaid, delta]) => {
+    const quill = session.redigerare[rutaid];
+    if (quill) quill.setContents(new QuillDelta(delta), 'user');
+  });
+
   speglaMeta();
   ritaPanel();
   if (visaForfattare) ritaForfattarvy();
@@ -851,12 +986,12 @@ function ritaForfattarvy() {
 
   const legend = document.getElementById('forfattarlegend');
 
-  SEKTIONER.forEach(sektion => {
-    const block = document.getElementById('sektion-' + sektion.key);
-    if (!block) return;
+  allaRutor(session.synk).forEach(({ id }) => {
+    const ruta = document.getElementById('ruta-' + id);
+    if (!ruta) return;
 
-    const behallare = block.querySelector('.ql-container');
-    let vy = block.querySelector('.forfattarvy');
+    const behallare = ruta.querySelector('.ql-container');
+    let vy = ruta.querySelector('.forfattarvy');
 
     if (!visaForfattare) {
       if (vy) vy.remove();
@@ -872,7 +1007,7 @@ function ritaForfattarvy() {
     behallare.hidden = true;
     vy.innerHTML = '';
 
-    const ytext = session.synk.text(sektion.key);
+    const ytext = session.synk.text(id);
     const text = ytext.toString();
 
     if (!text.trim()) {
@@ -955,7 +1090,7 @@ function kommentarknapp() {
 }
 
 /* Visar knappen "Kommentera" ovanför markerad text. */
-function kopplaMarkering(quill, sektion) {
+function kopplaMarkering(quill, rutaid) {
   quill.on('selection-change', range => {
     const knapp = kommentarknapp();
 
@@ -972,7 +1107,7 @@ function kopplaMarkering(quill, sektion) {
 
     knapp.onclick = () => {
       pastKommentar = {
-        sektion: sektion.key,
+        sektion: rutaid,
         index: range.index,
         langd: range.length,
         ledtext: quill.getText(range.index, range.length).trim().slice(0, 90),
@@ -1001,9 +1136,11 @@ function visaAktivMarkering() {
     : '';
 }
 
-function rubrikFor(nyckel) {
-  const sektion = SEKTIONER.find(s => s.key === nyckel);
-  return sektion ? sektion.rubrik : '';
+function rubrikFor(rutaid) {
+  const sektion = SEKTIONER.find(s => s.key === sektionsnyckelFor(rutaid));
+  if (!sektion) return '';
+  const nummer = tillaggsnummer(rutaid);
+  return nummer > 0 ? sektion.rubrik + ' – tillägg ' + nummer : sektion.rubrik;
 }
 
 function migSom() {

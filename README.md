@@ -14,6 +14,7 @@ textredigerare.
 | `kommentarer.js` | Kommentarsformatet i texten och trådarna som hör till. |
 | `forfattare.js` | Läser ut vem som skrev vad, ur Yjs egen struktur. |
 | `historik.js` | Hämtar sparade lägen och utför återställning. |
+| `rutor.js` | Sektionens rutor: lägga till, slå ihop, räkna tecken. |
 | `rutlas.js` | Hindrar två personer från att skriva i samma textruta. |
 | `server/versioner.js` | Sparar och gallrar versionerna. |
 | `lagring.js` | Vilka dokument du öppnat, och vem du är. Inte innehållet. |
@@ -70,6 +71,26 @@ Att återställa är inte att rulla tillbaka. Återställningen läggs på som e
 ändring, syns själv i historiken, och går att ångra genom att återställa till
 något senare. Den utförs genom Quill, inte direkt i Yjs – skriver man i Yjs
 bakom editorns rygg uppdaterar den inte alltid vad som visas.
+
+## Om rutorna
+
+En sektion har en huvudruta och upp till två tillhörande rutor. Poängen är att en
+upptagen huvudruta inte ska stänga ut någon: man lägger till en egen ruta,
+skriver där, och slår ihop den uppåt när det passar. Vem som helst får lägga till
+och slå ihop, men inte medan någon av de två rutorna är upptagen.
+
+Rutans id är sektionsnyckeln för huvudrutan och nyckeln med ett nummer för
+tilläggen – `syfte`, `syfte:1`, `syfte:2`. Huvudrutan behåller därmed sitt gamla
+namn, så dokument skapade innan funktionen fungerar oförändrat. Antalet rutor
+ligger i dokumentets metafält, så alla ser samma struktur.
+
+Teckengränsen gäller sektionen som helhet. Räknaren visar summan av dess rutor,
+och du får skriva över gränsen – men "Markera som klar" är blockerad tills du
+kortat.
+
+Sammanslagning görs på datanivå, varefter sektionens redigerare byggs om. Att
+skriva i den delade texten bakom en redigerares rygg uppdaterar den inte; bygger
+man om läser de nya redigerarna rätt innehåll från början.
 
 ## Om rutlåset
 
