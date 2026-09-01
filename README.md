@@ -145,6 +145,12 @@ Byt dem inte styckvis; ändrar du en försvinner avvägningen mot de övriga.
 Deltagarens initialer står vid markören i texten, och etiketten hålls synlig med
 påtvingade css-regler. Biblioteket döljer den annars efter tre sekunder.
 
+Flaggans form kommer från Figma: 8 px fet vit text, 1 px och 2 px indrag, och
+4 px hörnradie utom det hörn som vilar mot markörstrecket, som är rakt.
+Biblioteket speglar flaggan när den inte får plats till höger om markören, och då
+byter det raka hörnet sida – därför finns en regel för `.flag-flipped` också.
+Radien måste påtvingas eftersom biblioteket sätter en egen.
+
 Kopplingen mellan Quill och Yjs skapar en markör för varje deltagare i varje
 textruta, men flyttar den bara i rutan där personen faktiskt står. I de övriga
 blir en markör kvar på position noll. Det märktes inte så länge etiketterna
