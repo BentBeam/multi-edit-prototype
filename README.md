@@ -115,6 +115,12 @@ gömdes efter några sekunder.
 egen uppdatering – lyssnarna registreras därför efter kopplingarnas. Med
 fördröjning hinner den felplacerade markören blinka till.
 
+Städningen körs också direkt när dokumentet öppnats. Kopplingen skapar nämligen
+markörer för alla som redan är inne redan i sin konstruktor, alltså innan våra
+lyssnare finns – utan den körningen låg felplacerade markörer kvar ända tills
+någon rörde sig. Dessutom finns ett skyddsnät som sveper varannan sekund, ifall
+kopplingen skapar markörer i något läge vi inte lyssnar på.
+
 Att i stället dölja markörer med css fungerade sämre: biblioteket mäter
 elementet när det placerar markören, och ett element med `display: none` saknar
 mått, vilket gjorde att markören hamnade på fel rad.

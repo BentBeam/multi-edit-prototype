@@ -228,6 +228,7 @@ function lamnaSession() {
   pastKommentar = null;
   aktivTrad = null;
   if (!session) return;
+  clearInterval(session.stadklocka);
   session.bindningar.forEach(b => b.destroy());
   session.synk.kopplaNed();
   session = null;
@@ -323,6 +324,15 @@ function vyDokument(id) {
   ritaStatusrad();
   ritaKommentarer();
   ritaForfattarvy();
+
+  /* Kopplingen skapar markörer för alla som redan är inne redan i sin
+     konstruktor, innan våra lyssnare finns. Utan den här städningen ligger
+     felplacerade markörer kvar ända till någon rör sig. */
+  schemalaggMarkorstadning();
+
+  /* Skyddsnät. Skulle kopplingen skapa markörer i något läge vi inte lyssnar
+     på, försvinner de inom några sekunder i stället för att ligga kvar. */
+  session.stadklocka = setInterval(schemalaggMarkorstadning, 2000);
 }
 
 function byggFormular() {
