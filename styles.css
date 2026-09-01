@@ -387,13 +387,20 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
 }
 #hist-taagare { margin-right: 8px; }
 
-/* ---------- Upptaget stycke ---------- */
+/* ---------- Upptagen textruta ---------- */
 
-.ql-editor .stycke-last {
-  background: color-mix(in srgb, var(--lasfarg) 12%, transparent);
-  box-shadow: inset 2px 0 0 var(--lasfarg);
-  border-radius: 2px;
+.sektion.ruta-upptagen .ql-container.ql-snow {
+  border-color: var(--upptagenfarg);
+  background: color-mix(in srgb, var(--upptagenfarg) 6%, var(--yta));
   cursor: not-allowed;
+}
+.sektion.ruta-upptagen .ql-editor { cursor: not-allowed; }
+
+.upptagen-marke {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--upptagenfarg);
+  white-space: nowrap;
 }
 
 .lasbesked {

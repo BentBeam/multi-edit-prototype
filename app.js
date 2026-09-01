@@ -12,7 +12,7 @@ import {
 import { registreraMig, forfattare, forfattarrader } from './forfattare.js';
 import * as historik from './historik.js';
 import { stadaMarkorer } from './markorer.js';
-import { uppdateraLas, arLast } from './styckelas.js';
+import { uppdateraLas, arLast, glomLas } from './rutlas.js';
 
 Quill.register('modules/cursors', QuillCursors);
 registreraFormat();
@@ -227,6 +227,7 @@ function vyStart() {
 function lamnaSession() {
   pastKommentar = null;
   aktivTrad = null;
+  glomLas();
   if (!session) return;
   clearInterval(session.stadklocka);
   session.bindningar.forEach(b => b.destroy());
@@ -415,9 +416,11 @@ function byggFormular() {
 
     /* Hindrar inmatning i ett stycke någon annan skriver i. beforeinput fångar
        tangenttryck, inklistring och radering innan något hunnit ändras. */
+    /* Hindrar inmatning i en ruta någon annan har markören i. beforeinput
+       fångar tangenttryck, inklistring och radering innan något ändrats. */
     ['beforeinput', 'paste', 'drop'].forEach(handelse => {
       quill.root.addEventListener(handelse, e => {
-        const vem = arLast(quill, session?.las.get(sektion.key), e);
+        const vem = arLast(session?.las, sektion.key);
         if (!vem) return;
         e.preventDefault();
         visaLasbesked(vem);
@@ -497,7 +500,7 @@ function visaLasbesked(vem) {
     ruta.className = 'lasbesked';
     document.body.append(ruta);
   }
-  ruta.textContent = vem.namn + ' skriver i det stycket just nu';
+  ruta.textContent = vem.namn + ' är i den rutan just nu';
   ruta.style.setProperty('--lasfarg', vem.farg);
   ruta.classList.add('syns');
 
@@ -1224,10 +1227,10 @@ window.delatDokument = {
         skriver: t?.user?.skriver ?? null,
         harMarkor: Boolean(t?.cursor)
       })),
-      lastaStycken: [...session.las].map(([sektion, karta]) => ({
+      upptagnaRutor: [...session.las].map(([sektion, vem]) => ({
         sektion,
-        antal: karta.size,
-        av: [...karta.values()].map(v => v.namn)
+        av: vem.namn,
+        skriver: vem.skriver
       }))
     };
   }

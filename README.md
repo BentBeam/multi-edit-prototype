@@ -14,7 +14,7 @@ textredigerare.
 | `kommentarer.js` | Kommentarsformatet i texten och trådarna som hör till. |
 | `forfattare.js` | Läser ut vem som skrev vad, ur Yjs egen struktur. |
 | `historik.js` | Hämtar sparade lägen och utför återställning. |
-| `styckelas.js` | Hindrar två personer från att skriva i samma stycke. |
+| `rutlas.js` | Hindrar två personer från att skriva i samma textruta. |
 | `server/versioner.js` | Sparar och gallrar versionerna. |
 | `lagring.js` | Vilka dokument du öppnat, och vem du är. Inte innehållet. |
 | `app.js` | Vyer, validering och logik. |
@@ -71,20 +71,27 @@ Att återställa är inte att rulla tillbaka. Återställningen läggs på som e
 något senare. Den utförs genom Quill, inte direkt i Yjs – skriver man i Yjs
 bakom editorns rygg uppdaterar den inte alltid vad som visas.
 
-## Om styckelåset
+## Om rutlåset
 
-Ett stycke någon annan skriver i går inte att redigera. Spärren sitter i
-`beforeinput`, alltså innan tangenttrycket ändrat något, och läser vad
-webbläsaren är på väg att göra i stället för att fråga Quill var markören står –
-Quill hinner inte uppdatera sin uppfattning i tid.
+En textruta någon annan har markören i går inte att redigera. Spärren ligger i
+`beforeinput`, alltså innan tangenttrycket ändrat något.
 
-Det här är en artighetsspärr, inte ett lås. Den sitter i webbläsaren och kan
-kringgås, och två personer kan hamna i samma tomma stycke samtidigt. Synkmotorn
-klarar det ändå; spärren finns för att undvika oavsiktliga krockar.
+Låset ligger på hela rutan, inte på stycket. Stycken flyttar sig, delas och slås
+ihop, och en markör vid en styckesgräns hör tvetydigt till båda – det gav
+gränsfall som inte gick att få rätt, och felplacerade markörer på skärmen.
 
-Ett stycke låses bara medan någon faktiskt skriver, och släpps efter åtta
-sekunders tystnad (`TYSTNAD_MS` i `synk.js`). Utan den gränsen låser ett
-bortglömt fönster texten för alla andra.
+En ruta räknas som upptagen så länge någon annan har markören där, oavsett om
+hen skriver just nu. Märket i sektionsrubriken skiljer på "är här" och "skriver
+här".
+
+Markören försvinner ur närvarodatan så fort fönstret tappar fokus, alltså varje
+gång någon växlar program. Därför hålls rutan kvar i tjugo sekunder efter att
+markören försvunnit (`FRIST_MS`). Byter personen ruta släpps den gamla direkt,
+och lämnar personen dokumentet släpps den omedelbart.
+
+Det här är en artighetsspärr, inte ett lås: den sitter i webbläsaren och kan
+kringgås, och två personer kan hamna i samma tomma ruta samtidigt. Synkmotorn
+klarar det ändå.
 
 ## Felsökning
 
