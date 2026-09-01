@@ -30,6 +30,37 @@ function horHemma(synk, tillstand, ytext) {
   }
 }
 
+/* Vad koden tror om varje markörelement, per ruta. Används av diagnostiken. */
+export function markorlage(synk, redigerare) {
+  const tillstand = synk.awareness.getStates();
+
+  return allaRutor(synk).map(({ id }) => {
+    const quill = redigerare[id];
+    if (!quill) return { ruta: id, fel: 'ingen redigerare' };
+
+    const behallare = quill.container.querySelector('.ql-cursors');
+    if (!behallare) return { ruta: id, fel: 'ingen markörbehållare' };
+
+    const ytext = synk.text(id);
+
+    return {
+      ruta: id,
+      markorer: [...behallare.querySelectorAll('.ql-cursor')].map(element => {
+        const klientId = Number(element.id.replace('ql-cursor-', ''));
+        const deltagartillstand = tillstand.get(klientId);
+        return {
+          element: element.id,
+          klientId,
+          finnsINarvaro: Boolean(deltagartillstand),
+          harMarkorfalt: Boolean(deltagartillstand?.cursor),
+          horHemma: horHemma(synk, deltagartillstand, ytext),
+          synlig: getComputedStyle(element).display !== 'none'
+        };
+      })
+    };
+  });
+}
+
 export function stadaMarkorer(synk, redigerare) {
   const tillstand = synk.awareness.getStates();
 

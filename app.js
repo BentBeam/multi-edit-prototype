@@ -12,7 +12,7 @@ import {
 } from './kommentarer.js';
 import { registreraMig, forfattare, forfattarrader, hittaDeltagare } from './forfattare.js';
 import * as historik from './historik.js';
-import { stadaMarkorer } from './markorer.js';
+import { stadaMarkorer, markorlage } from './markorer.js';
 import { uppdateraLas, arLast, glomLas } from './rutlas.js';
 import {
   rutaId, rutorFor, allaRutor, antalRutor, kanLaggaTill, laggTill, slaIhop,
@@ -307,10 +307,13 @@ function vyDokument(id) {
     });
   });
 
-  synk.awareness.on('change', () => {
+  /* Sparas så den kan flyttas sist i kön igen efter en ombyggnad – se
+     flyttaLyssnareSist. */
+  session.narvarolyssnare = () => {
     ritaNarvaro();
     schemalaggMarkorstadning();
-  });
+  };
+  synk.awareness.on('change', session.narvarolyssnare);
   if (synk.provider) {
     synk.provider.on('status', handelse => {
       if (handelse.status === 'connected') session.harVaritAnsluten = true;
@@ -339,7 +342,7 @@ function vyDokument(id) {
 
   /* Skyddsnät. Skulle kopplingen skapa markörer i något läge vi inte lyssnar
      på, försvinner de inom några sekunder i stället för att ligga kvar. */
-  session.stadklocka = setInterval(schemalaggMarkorstadning, 2000);
+  session.stadklocka = setInterval(schemalaggMarkorstadning, 750);
 }
 
 function byggFormular() {
@@ -517,9 +520,22 @@ function byggOmSektion(sektion) {
   });
 
   ritaRutor(sektion);
+  flyttaLyssnareSist();
   ritaPanel();
   if (visaForfattare) ritaForfattarvy();
   schemalaggMarkorstadning();
+}
+
+/* Flyttar vår närvarolyssnare sist i kön.
+ *
+ * Städningen måste köra efter kopplingarnas egna lyssnare, annars skapar de
+ * spökmarkören efter att vi städat. Vid uppstart stämmer ordningen, men varje
+ * ombyggd sektion registrerar nya kopplingar som hamnar efter oss. Att koppla
+ * bort och på igen lägger oss sist på nytt. */
+function flyttaLyssnareSist() {
+  if (!session?.narvarolyssnare) return;
+  session.synk.awareness.off('change', session.narvarolyssnare);
+  session.synk.awareness.on('change', session.narvarolyssnare);
 }
 
 /* Bygger om de sektioner vars antal rutor ändrats. Kallas när metafälten
@@ -1365,6 +1381,7 @@ window.delatDokument = {
         skriver: t?.user?.skriver ?? null,
         harMarkor: Boolean(t?.cursor)
       })),
+      markorer: markorlage(session.synk, session.redigerare),
       upptagnaRutor: [...session.las].map(([sektion, vem]) => ({
         sektion,
         av: vem.namn,

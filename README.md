@@ -126,8 +126,13 @@ klarar det ändå.
 och skrivs ut i webbläsarens konsol vid start. Bumpa den vid varje driftsättning
 – annars går det inte att avgöra om en webbläsare kör den senaste koden.
 
-`delatDokument.tillstand()` i konsolen visar version, deltagare, vem som skriver
-och vilka stycken som är låsta. Den läser bara, och ändrar ingenting.
+`delatDokument.tillstand()` i konsolen visar version, deltagare, vem som skriver,
+vilka rutor som är upptagna, och för varje markörelement om koden anser att det
+hör hemma där det ligger. Den läser bara, och ändrar ingenting.
+
+Fältet `markorer` är det som avgör spökmarkörsfrågor: står `horHemma: false` på
+ett synligt element är städningen inte gjord, och då är det ordningen mellan
+lyssnarna som ska kontrolleras först.
 
 ## Om deltagarfärgerna
 
@@ -148,6 +153,11 @@ gömdes efter några sekunder.
 `markorer.js` tar bort dem, och det måste ske i samma arbetspass som kopplingens
 egen uppdatering – lyssnarna registreras därför efter kopplingarnas. Med
 fördröjning hinner den felplacerade markören blinka till.
+
+Vår närvarolyssnare måste köra sist, efter kopplingarnas egna – annars skapar de
+spökmarkören efter att vi städat. Vid uppstart stämmer ordningen, men varje
+ombyggd sektion registrerar nya kopplingar som hamnar efter oss. Därför flyttas
+lyssnaren sist i kön igen vid varje ombyggnad, se `flyttaLyssnareSist`.
 
 Städningen går igenom varje ruta, inte varje sektion. Missar man tilläggsrutorna
 städas deras markörer aldrig – det felet gjorde jag när rutorna infördes.
