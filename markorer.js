@@ -262,6 +262,14 @@ export function stadaMarkorer(synk, redigerare) {
         deltagartillstand?.markor?.sammaRadSomFore
       );
       if (plats) flyttaMarkor(element, plats);
+
+      /* Flaggan ska vara exakt lika hög som strecket. Biblioteket skriver
+         streckets höjd som inline-stil per rad, och flaggan är ett syskon till
+         det – ingen css-selektor kan läsa den, så höjden kopieras här. Sist, så
+         den följer med även när rättningen ovan ändrat streckets höjd. */
+      const strecket = element.querySelector('.ql-cursor-caret-container');
+      const flaggan = element.querySelector('.ql-cursor-flag');
+      if (strecket && flaggan) flaggan.style.height = strecket.style.height;
     });
   });
 }
