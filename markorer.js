@@ -48,13 +48,36 @@ export function markorlage(synk, redigerare) {
       markorer: [...behallare.querySelectorAll('.ql-cursor')].map(element => {
         const klientId = Number(element.id.replace('ql-cursor-', ''));
         const deltagartillstand = tillstand.get(klientId);
+
+        /* Var säger närvarodatan att markören är, och var ritas den? Skiljer de
+           sig är det placeringen som är fel, inte städningen. */
+        let index = null;
+        try {
+          const plats = Y.createAbsolutePositionFromRelativePosition(
+            Y.createRelativePositionFromJSON(deltagartillstand.cursor.anchor),
+            synk.doc
+          );
+          if (plats && plats.type === ytext) index = plats.index;
+        } catch { /* ingen position att läsa */ }
+
+        const caret = element.querySelector('.ql-cursor-caret');
+        const ritad = caret ? caret.getBoundingClientRect() : null;
+        const behallarruta = quill.container.getBoundingClientRect();
+        const forvantad = index === null ? null : quill.getBounds(index);
+
         return {
           element: element.id,
           klientId,
           finnsINarvaro: Boolean(deltagartillstand),
           harMarkorfalt: Boolean(deltagartillstand?.cursor),
           horHemma: horHemma(synk, deltagartillstand, ytext),
-          synlig: getComputedStyle(element).display !== 'none'
+          synlig: getComputedStyle(element).display !== 'none',
+          index,
+          textlangd: ytext.length,
+          ritadTopp: ritad ? Math.round(ritad.top - behallarruta.top) : null,
+          forvantadTopp: forvantad ? Math.round(forvantad.top) : null,
+          ritadVanster: ritad ? Math.round(ritad.left - behallarruta.left) : null,
+          forvantadVanster: forvantad ? Math.round(forvantad.left) : null
         };
       })
     };

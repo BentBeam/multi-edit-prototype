@@ -235,10 +235,23 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
   line-height: normal;
 }
 
+/* Flaggan står vid sidan av markören, inte ovanför den.
+ *
+ * Biblioteket lyfter den ett helt flagghöjd uppåt, men radhöjden är 24 px och
+ * markören 17,5 px – det ger 6,5 px luft mellan raderna, medan flaggan är
+ * 15,5 px hög. Ovanför täcker den alltså alltid en bit av raden över, vilket
+ * ser ut som att markören står på fel rad. Vid sidan täcker den ingenting när
+ * man skriver i slutet av sin text, vilket är det normala fallet. */
+.ql-cursors .ql-cursor .ql-cursor-flag {
+  transform: translate3d(3px, 0, 0) !important;
+}
+
 /* Biblioteket speglar flaggan när den inte får plats till höger om markören.
-   Då ska det raka hörnet byta sida, så att det fortfarande vilar mot strecket. */
+   Då hamnar den till vänster, och det raka hörnet byter sida så att det
+   fortfarande vilar mot strecket. */
 .ql-cursors .ql-cursor .ql-cursor-flag.flag-flipped {
   border-radius: 4px 4px 0 4px !important;
+  transform: translate3d(calc(-100% - 3px), 0, 0) !important;
 }
 
 /* Bibliotekets egna marginaler runt initialerna nollställs, så indraget kommer

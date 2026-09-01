@@ -151,6 +151,12 @@ Biblioteket speglar flaggan när den inte får plats till höger om markören, o
 byter det raka hörnet sida – därför finns en regel för `.flag-flipped` också.
 Radien måste påtvingas eftersom biblioteket sätter en egen.
 
+Flaggan står vid sidan av markören, inte ovanför den. Biblioteket lyfter den en
+hel flagghöjd uppåt, men radhöjden är 24 px och markören 17,5 px – det ger 6,5 px
+luft mellan raderna medan flaggan är 15,5 px hög. Ovanför täcker den alltså
+alltid en bit av raden över, vilket ser ut som att markören står på fel rad.
+Vill du ha den ovanför igen krävs en radhöjd runt 34 px.
+
 Kopplingen mellan Quill och Yjs skapar en markör för varje deltagare i varje
 textruta, men flyttar den bara i rutan där personen faktiskt står. I de övriga
 blir en markör kvar på position noll. Det märktes inte så länge etiketterna
