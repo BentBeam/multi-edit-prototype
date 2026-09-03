@@ -313,3 +313,32 @@ gränssnittet ihop 4 px överallt.
 Typsnittsgraderna följer INTE skalan, och ska inte göra det: en typografisk skala
 med bara 8, 16 och 24 px blir oläslig. Detsamma gäller 1 px-linjer och
 layoutmåtten över 48 px (spaltbredder, `min-height: 150px` på textrutorna).
+
+
+## Ångra rör bara min egen text
+
+`history: { userOnly: true }` i Quill-konfigurationen. Quills standard är av, och
+då spelas de andras ändringar in i min ångra-historik. Verifierat före fixen: ett
+enda Cmd+Z hos Anna raderade Bertils mening — i båda fönstren, eftersom
+ändringen gick ut i det delade dokumentet som vilken redigering som helst.
+
+Uppslaget kom från Liveblocks genomgång av en samredigerande Quill-editor, som
+sätter just den flaggan med kommentaren "Local undo shouldn't undo changes from
+remote users".
+
+## Quills genvägar går runt rutlåset
+
+Spärren mot att skriva i en upptagen ruta ligger i `beforeinput`. Men Quills egna
+tangentgenvägar — ångra, gör om, fetstil, kursiv, understruken, tabb — är
+API-anrop som Quill gör från en tangentnedtryckning. De är inte inmatning och
+utlöser inget `beforeinput`, så de gick rakt igenom låset. Verifierat i en låst
+ruta: ett Cmd+Z raderade den andres mening, ett Cmd+B fetstilade hennes text.
+
+Spärren för genvägar ligger därför på `#ruta-<id>` och fångar i **capture-fasen**.
+Det är avsiktligt och inte utbytbart mot en lyssnare på textytan: tangenttrycket
+har textytan som mål, så en lyssnare där hamnar i samma fas som Quills egen och
+körs efter den, eftersom Quill registrerade sin först. En förälder i
+capture-fasen kommer alltid först.
+
+Bara det som ändrar stoppas. Att läsa, markera och kopiera ur en upptagen ruta
+ska fungera, så Cmd+C och Cmd+A släpps igenom.
