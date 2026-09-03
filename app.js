@@ -469,7 +469,13 @@ function byggRuta(behallare, sektion, rutaid) {
          redan satt rätt position ur Yjs för samma ändring, så flytten sker två
          gånger och markören kryper framåt tills den fastnar i textens slut.
          Se markorer.js. */
-      cursors: { transformOnTextChange: false }
+      cursors: { transformOnTextChange: false },
+
+      /* userOnly gör att min ångra-historik bara innehåller MINA ändringar.
+         Quills standard är av, och då spelas de andras ändringar in i min
+         historik – ett enda Cmd+Z raderade då den andres mening, i båda
+         fönstren. Verifierat innan och efter. */
+      history: { userOnly: true }
     }
   });
 
@@ -504,6 +510,34 @@ function byggRuta(behallare, sektion, rutaid) {
       visaLasbesked(vem);
     });
   });
+
+  /* Quills egna tangentgenvägar går runt spärren ovan.
+   *
+   * Ångra, gör om och fetstil är API-anrop som Quill gör från en
+   * tangentnedtryckning – det är inte inmatning, så inget beforeinput utlöses.
+   * Verifierat i en låst ruta: ett Cmd+Z raderade den andres mening och ett
+   * Cmd+B fetstilade hennes text, båda spreds till hennes fönster.
+   *
+   * Lyssnaren sitter på rutan, inte på textytan, och fångar i capture-fasen.
+   * Det är avsiktligt: tangenttrycket har textytan som mål, så en lyssnare där
+   * skulle ligga i samma fas som Quills egen och köras efter den. En förälder
+   * i capture-fasen kommer alltid först.
+   *
+   * Bara det som ändrar stoppas. Att läsa, markera och kopiera ur en upptagen
+   * ruta ska gå. */
+  const ANDRANDE_GENVAGAR = new Set(['z', 'y', 'b', 'i', 'u']);
+
+  ruta.addEventListener('keydown', e => {
+    const vem = arLast(session?.las, rutaid);
+    if (!vem) return;
+
+    const genvag = (e.metaKey || e.ctrlKey) && ANDRANDE_GENVAGAR.has(e.key.toLowerCase());
+    if (!genvag && e.key !== 'Tab') return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    visaLasbesked(vem);
+  }, true);
 
   kopplaMarkering(quill, rutaid);
 

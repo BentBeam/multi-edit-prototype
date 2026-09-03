@@ -4,7 +4,7 @@
    statusraden, och skrivs ut i webbläsarens konsol vid start. Finns för att det
    ska gå att avgöra på en sekund om en webbläsare kör den senaste koden – den
    frågan har annars kostat oss mycket tid. */
-export const KODVERSION = '2026-09-01 d';
+export const KODVERSION = '2026-09-01 e';
 
 export const APPNAMN = 'Delat dokument';
 
