@@ -152,11 +152,15 @@ byter det raka hörnet sida – därför finns en regel för `.flag-flipped` ock
 Radien måste påtvingas eftersom biblioteket sätter en egen.
 
 Flaggan står vid sidan av markörstrecket med 1 px luft, och är exakt lika hög som
-strecket. Hörnen mot strecket är raka, de bortre rundade med 4 px. Flaggan är
-halvgenomskinlig (`opacity: 0.5`) medan strecket är helt tätt – de är
-syskonelement, inte far och barn, så opaciteten på flaggan når aldrig strecket.
-Priset är att de vita initialerna tonas med bakgrunden och inte längre klarar
-kontrastkravet; flaggans färg i sig gör det.
+strecket. Hörnen mot strecket är raka, de bortre rundade med 4 px.
+
+En halvgenomskinlig flagga (`opacity: 0.5`) var prövad och ändrad tillbaka. Den
+gick att göra utan att tona strecket, eftersom de två är syskonelement och inte
+far och barn — men uträknat på den gröna färgen mot rutans bakgrund föll vit text
+mot plattan från 4,65:1 till 2,04:1, långt under kravet 4,5:1 som hela
+färgvalet bygger på. Initialerna blev svårlästa. Ska plattan tonas med läsbar
+text kvar måste bakgrundsfärgen tonas i stället för elementet, och den sätter
+biblioteket som inline-stil ur deltagarens färg.
 
 Ovanför strecket var den ett tag, men radhöjden är 24 px och strecket 18 px –
 bara 6 px luft mellan raderna, medan flaggan är 18 px hög. Ovanför täckte den
@@ -176,8 +180,7 @@ den ur. Därför kopieras höjden i `markorer.js`, sist i städningen så den f�
 med även när radbrytningsrättningen ändrat streckets höjd.
 
 Mätt i drift: streckets högerkant 352, flaggans vänsterkant 353, alltså 1 px
-luft. Samma topp (401) och samma höjd (18) för båda. Flaggans opacitet 0,5,
-streckets 1.
+luft. Samma topp (401) och samma höjd (18) för båda.
 
 `markorer.js` rättar också placeringen vid mjuka radbrytningar. Där har ett och
 samma textindex två visuella platser – slutet av raden ovan och början av raden

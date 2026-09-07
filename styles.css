@@ -221,12 +221,14 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
    efter en rörelse. Vi vill se vem som står var hela tiden. Reglerna måste vara
    påtvingade, eftersom bibliotekets egen stilmall läggs in efter vår.
 
-   Halvgenomskinlig flagga, helt tätt streck: de två är syskonelement, inte
-   far och barn, så opaciteten här når aldrig strecket. Priset är att
-   initialerna tonas med bakgrunden – vit text på 50 % klarar inte
-   kontrastkravet, till skillnad från flaggan i sig. */
+   Opaciteten ska vara 1. En halvgenomskinlig flagga var prövad och förkastad:
+   vit text mot plattan föll från 4,65:1 till 2,04:1, alltså långt under kravet
+   4,5:1, och initialerna blev svårlästa. Vill man ändå ha en tonad platta med
+   läsbar text måste bakgrundsfärgen tonas i stället för elementet – men den
+   sätter biblioteket som inline-stil ur deltagarens färg, så det får göras i
+   markorer.js. */
 .ql-cursors .ql-cursor .ql-cursor-flag {
-  opacity: 0.5 !important;
+  opacity: 1 !important;
   visibility: visible !important;
   transition: none !important;
 
