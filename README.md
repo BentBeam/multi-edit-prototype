@@ -151,26 +151,33 @@ Biblioteket speglar flaggan när den inte får plats till höger om markören, o
 byter det raka hörnet sida – därför finns en regel för `.flag-flipped` också.
 Radien måste påtvingas eftersom biblioteket sätter en egen.
 
-Flaggan står vid sidan av markörstrecket, kant i kant med det, och är exakt lika
-hög som strecket. Hörnen mot strecket är raka, de bortre rundade med 4 px.
+Flaggan står vid sidan av markörstrecket med 1 px luft, och är exakt lika hög som
+strecket. Hörnen mot strecket är raka, de bortre rundade med 4 px. Flaggan är
+halvgenomskinlig (`opacity: 0.5`) medan strecket är helt tätt – de är
+syskonelement, inte far och barn, så opaciteten på flaggan når aldrig strecket.
+Priset är att de vita initialerna tonas med bakgrunden och inte längre klarar
+kontrastkravet; flaggans färg i sig gör det.
 
 Ovanför strecket var den ett tag, men radhöjden är 24 px och strecket 18 px –
 bara 6 px luft mellan raderna, medan flaggan är 18 px hög. Ovanför täckte den
 därför alltid en del av raden ovanför när det stod text där. Vid sidan täcker den
 ingenting.
 
-Uppriktningen är `translate3d(1px, 0, 0)`. 1 px är ingen avståndsväljare: flaggan
-och streckets behållare får samma nollpunkt av biblioteket, och strecket är 2 px
-brett och ritas centrerat kring den (`margin-left: -1px`), så dess högerkant
-ligger 1 px till höger. Det är enda siffran som ger en skarv utan glapp.
+Uppriktningen är `translate3d(2px, 0, 0)`. Talet är ingen avståndsväljare på
+4/8-skalan: flaggan och streckets behållare får samma nollpunkt av biblioteket,
+och strecket är 2 px brett och ritas centrerat kring den (`margin-left: -1px`),
+så dess högerkant ligger 1 px till höger. `1px` ger därför en skarv utan glapp
+och `2px` en pixels luft, vilket är det valda utseendet. Den speglade varianten
+får samma luft på sin sida (`calc(-100% - 2px)`), så de ser lika ut.
 
 Höjden kan inte sättas i css. Biblioteket skriver streckets höjd som inline-stil
 per rad, och flaggan är ett syskonelement till strecket – ingen selektor kan läsa
 den ur. Därför kopieras höjden i `markorer.js`, sist i städningen så den följer
 med även när radbrytningsrättningen ändrat streckets höjd.
 
-Mätt i drift på andra raden i ett fält: streck topp 425 höjd 18, flagga topp 425
-höjd 18, glapp mellan streckets högerkant och flaggans vänsterkant 0 px.
+Mätt i drift: streckets högerkant 352, flaggans vänsterkant 353, alltså 1 px
+luft. Samma topp (401) och samma höjd (18) för båda. Flaggans opacitet 0,5,
+streckets 1.
 
 `markorer.js` rättar också placeringen vid mjuka radbrytningar. Där har ett och
 samma textindex två visuella platser – slutet av raden ovan och början av raden
