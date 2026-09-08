@@ -152,11 +152,14 @@ byter det raka hörnet sida – därför finns en regel för `.flag-flipped` ock
 Radien måste påtvingas eftersom biblioteket sätter en egen.
 
 Flaggan står vid sidan av markörstrecket med 1 px luft, och är exakt lika hög som
-strecket, och helt rund: `border-radius: 999px` ger en pillerform oavsett om
-initialerna är en eller två. `50%` hade i stället gett en ellips som ändrar form
-med bredden. Ändarna har 8 px luft i stället för 4 – pillerkurvan äter av
-innerkanten, och med 4 px hamnade bokstäverna inne i den. Med två initialer blir
-flaggan 29 × 18 px.
+strecket, och helt rund: `border-radius: 999px`, lika radie i alla fyra hörn.
+`50%` hade i stället gett en ellips som ändrar form med bredden.
+
+Flaggan har inget indrag. Initialerna centreras i båda riktningarna med flex, i
+den yta flaggan får utifrån: `markorer.js` sätter både höjden och minsta bredden
+till markörstreckets höjd. Eftersom initialerna är ett eller två tecken ryms de
+alltid inom den ytan, så brickan blir en cirkel. Uppmätt: 18 × 18 px, indrag 0,
+och "AA" med 3 px på var sida vågrätt och 5 px lodrätt.
 
 En halvgenomskinlig flagga (`opacity: 0.5`) var prövad och ändrad tillbaka. Den
 gick att göra utan att tona strecket, eftersom de två är syskonelement och inte
