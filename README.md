@@ -152,7 +152,11 @@ byter det raka hörnet sida – därför finns en regel för `.flag-flipped` ock
 Radien måste påtvingas eftersom biblioteket sätter en egen.
 
 Flaggan står vid sidan av markörstrecket med 1 px luft, och är exakt lika hög som
-strecket. Hörnen mot strecket är raka, de bortre rundade med 4 px.
+strecket, och helt rund: `border-radius: 999px` ger en pillerform oavsett om
+initialerna är en eller två. `50%` hade i stället gett en ellips som ändrar form
+med bredden. Ändarna har 8 px luft i stället för 4 – pillerkurvan äter av
+innerkanten, och med 4 px hamnade bokstäverna inne i den. Med två initialer blir
+flaggan 29 × 18 px.
 
 En halvgenomskinlig flagga (`opacity: 0.5`) var prövad och ändrad tillbaka. Den
 gick att göra utan att tona strecket, eftersom de två är syskonelement och inte
@@ -352,3 +356,25 @@ capture-fasen kommer alltid först.
 
 Bara det som ändrar stoppas. Att läsa, markera och kopiera ur en upptagen ruta
 ska fungera, så Cmd+C och Cmd+A släpps igenom.
+
+
+## Strecket pulsar
+
+`@keyframes markorpuls` tonar markörstrecket mellan full opacitet och 0,2 på
+1200 ms med `ease-in-out`, så det syns att en levande person står där.
+
+Animationen ligger på **strecket**, inte på flaggan. De är syskonelement, så
+initialerna står stilla och läsbara medan strecket tonar – en blinkande flagga
+hade gjort namnet svårt att läsa. Och den tonar till 0,2 i stället för 0: en
+markör som försvinner helt halva tiden är svår att följa med blicken.
+
+Pulsen stängs av vid `prefers-reduced-motion: reduce`. Har du "Minska rörelse"
+påslaget i systeminställningarna ser du alltså ett stilla streck, och det är
+avsiktligt – det bär samma information utan rörelsen.
+
+Uppmätt opacitet över en cykel: 1,00 → 0,21 → 0,49 → 0,90 → 0,99 → 0,71 → 0,30 →
+0,21. Mellanvärdena är det som skiljer en toning från ett hårt blink.
+
+Pulsen är inte kopplad till om personen faktiskt skriver just nu. Vill man det
+finns `user.skriver` i närvarodatan, som redan styr texten "skriver här" mot
+"är här" i upptaget-märket.
