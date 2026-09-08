@@ -400,3 +400,39 @@ Uppmätt opacitet över en cykel: 1,00 → 0,01 → 0,36 → 0,87 → 0,99 → 0
 Pulsen är inte kopplad till om personen faktiskt skriver just nu. Vill man det
 finns `user.skriver` i närvarodatan, som redan styr texten "skriver här" mot
 "är här" i upptaget-märket.
+
+
+## Låset släpper direkt vid klick ut ur fältet
+
+När någons markering försvinner betyder det två helt olika saker, och de ska
+behandlas olika:
+
+| Vad som hände | Vad som ska gälla |
+|---|---|
+| Klickade ut ur fältet, kvar i fönstret | Rutan släpps **direkt** |
+| Hela fönstret tappade fokus | Fristen på 20 s gäller — personen är kvar där hen var |
+
+Båda får Quill att nolla markeringen, så de andra ser bara "ingen markör" utan
+att veta varför. Skälet skickas därför med i närvarodatans `fokus.fonster`, satt
+av `document.hasFocus()` läst i **samma blur-händelse** som nollar markeringen.
+
+Att skicka det därifrån, och inte från en egen lyssnare på `window`, är
+avsiktligt: annars kan de andra se att markören är borta innan de vet varför, och
+släppa rutan för tidigt. Saknas beskedet kör deltagaren äldre kod, och då
+behåller vi fristen.
+
+Klick i en **annan textruta** släppte redan tidigare direkt — då flyttar
+markören dit, och `senastKanda` skrivs om. Det nya fallet är klick på något som
+inte är en textruta: titeln, ett datumfält, panelen, tom sidyta.
+
+**Verifierat:** ruta låst av Anna, Anna klickar i titelfältet, Bertil ser
+`upptagnaRutor: []` och klassen borta i samma andetag. Och tillbaka i fältet, med
+Annas flik i bakgrunden, ligger låset kvar.
+
+**Inte verifierat i test:** en riktig fönsterväxling mellan två OS-fönster. En
+bakgrundsflik i testpanelen behåller sin markering, så fristvägen prövas inte
+där. Kontrollera i det observerande fönstret med `delatDokument.tillstand()`:
+för den andre ska `harMarkor` bli `false` och `fonsterfokus` bli `false` när du
+växlar bort från skrivfönstret. Står `fonsterfokus: true` med markören borta
+har låset släppt för tidigt, och då är det ordningen mellan händelserna som
+behöver ses om.
