@@ -539,6 +539,21 @@ function byggRuta(behallare, sektion, rutaid) {
     visaLasbesked(vem);
   }, true);
 
+  /* Skälet till att min markering försvann skickas i samma händelse som den
+     försvinner. document.hasFocus() läst just här skiljer "jag klickade ut ur
+     fältet" från "hela fönstret tappade fokus": i det andra fallet är den redan
+     falsk när blur når hit.
+     Att skicka det härifrån, och inte från en egen fönsterlyssnare, är avsiktligt
+     – annars kan de andra se att markören är borta innan de vet varför, och
+     släppa rutan för tidigt. */
+  quill.root.addEventListener('blur', () => {
+    session?.synk.sattFonsterfokus(document.hasFocus());
+  });
+
+  quill.root.addEventListener('focus', () => {
+    session?.synk.sattFonsterfokus(true);
+  });
+
   kopplaMarkering(quill, rutaid);
 
   quill.root.addEventListener('click', e => {

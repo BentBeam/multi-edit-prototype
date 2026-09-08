@@ -38,6 +38,14 @@ export function anslut(dokumentId, profil) {
     skriver: false
   });
 
+  /* Har mitt fönster fokus?
+   *
+   * När min markering försvinner kan det betyda två helt olika saker: att jag
+   * klickade ut ur fältet med flit, eller att jag växlade program och är kvar
+   * där jag var. Det första ska släppa rutan direkt, det andra ska ge frist.
+   * Bara min egen webbläsare kan skilja dem, så jag skickar med svaret. */
+  awareness.setLocalStateField('fokus', { fonster: document.hasFocus() });
+
   /* Talar om för de andra att jag skriver just nu, och tystnar av sig själv.
      Flaggan är ett ja eller nej satt av min egen webbläsare – inga klockor
      jämförs mellan datorer, som annars går isär. */
@@ -65,6 +73,12 @@ export function anslut(dokumentId, profil) {
     awareness.setLocalStateField('markor', { sammaRadSomFore: varde });
   }
 
+  function sattFonsterfokus(harFokus) {
+    const nu = awareness.getLocalState()?.fokus;
+    if (nu && nu.fonster === harFokus) return;
+    awareness.setLocalStateField('fokus', { fonster: harFokus });
+  }
+
   return {
     doc,
     provider,
@@ -75,6 +89,10 @@ export function anslut(dokumentId, profil) {
 
     /* Står min markör på samma rad som tecknet före den? Se ovan. */
     sattSammaRadSomFore,
+
+    /* Talar om varför min markering försvann: klick ut ur fältet, eller ett
+       fönster som tappat fokus. Se fältet fokus ovan. */
+    sattFonsterfokus,
 
     /* Sant när det inte finns någon server att dela med alls. */
     get saknarServer() {

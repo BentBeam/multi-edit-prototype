@@ -32,7 +32,11 @@ import { allaRutor, rutorFor } from './rutor.js';
  * varje gång någon växlar program för att kolla något. Utan frist blir rutan
  * fri i samma sekund, och någon annan kan hoppa in mitt i en mening. Lämnar
  * personen dokumentet helt släpps rutan direkt – då finns hen inte kvar i
- * närvarodatan. */
+ * närvarodatan.
+ *
+ * Fristen gäller BARA fönsterväxling. Klickar någon ut ur fältet med flit
+ * släpps rutan direkt, och det skiljs på med hjälp av närvarodatans fokusfält
+ * – se villkoret i agarePerRuta. */
 const FRIST_MS = 20000;
 
 /* klientId -> { sektionsnyckel, vem, sistSedd } */
@@ -50,7 +54,16 @@ function agarePerRuta(synk) {
 
   synk.awareness.getStates().forEach((tillstand, klientId) => {
     narvarande.add(klientId);
-    if (!tillstand?.user || !tillstand.cursor) return;
+    if (!tillstand?.user) return;
+
+    /* Ingen markering. Klickade personen ut ur fältet med flit släpps rutan
+       direkt – då har deras fönster fortfarande fokus. Tappade hela fönstret
+       fokus är de kvar där de var, och fristen nedan gäller. Saknas beskedet
+       kör deltagaren äldre kod, och då behåller vi fristen. */
+    if (!tillstand.cursor) {
+      if (tillstand.fokus?.fonster === true) senastKanda.delete(klientId);
+      return;
+    }
 
     const vem = {
       klientId,
