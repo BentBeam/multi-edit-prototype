@@ -1433,12 +1433,52 @@ console.log('Delat dokument – kodversion ' + KODVERSION);
    beter sig konstigt. Skriver ingenting och ändrar ingenting. */
 window.delatDokument = {
   version: KODVERSION,
+
+  /* Nödutgång när uppkopplingen hängt sig: bryt uttaget och koppla upp igen.
+     Yjs är en CRDT, så båda sidor slås ihop utan att något går förlorat –
+     ingenting skrivs över, oavsett vem som skrev vad medan kontakten låg nere. */
+  synkaOm() {
+    if (!session) return 'inget dokument öppet';
+    if (!session.synk.provider) return 'ingen server konfigurerad';
+    session.synk.provider.disconnect();
+    session.synk.provider.connect();
+    return 'kopplar upp igen – kontrollera med tillstand().koppling om en stund';
+  },
+
   tillstand() {
     if (!session) return { vy: 'startsidan' };
     return {
       version: KODVERSION,
       dokument: session.id,
       ansluten: session.synk.ansluten,
+
+      /* Uppkopplingens tillstånd i detalj. wsconnected säger att uttaget är
+         öppet, synced att servern hunnit skicka över sitt läge – de kan skilja
+         sig, och då är man ansluten men efter. */
+      koppling: {
+        anslutet: session.synk.provider?.wsconnected ?? null,
+        ansluter: session.synk.provider?.wsconnecting ?? null,
+        synkad: session.synk.provider?.synced ?? null,
+        saknarServer: session.synk.saknarServer
+      },
+
+      /* Skiljer två fel som ser likadana ut i fönstret:
+         stammer: false med lika många tecken i yjs som hos den andre betyder
+         att datan kom fram men inte visas – kopplingen mellan Quill och Yjs är
+         bruten. Färre tecken i yjs betyder att datan aldrig kom fram. */
+      texter: allaRutor(session.synk).map(({ id }) => {
+        const quill = session.redigerare[id];
+        const iYjs = session.synk.text(id).toString().replace(/\n+$/, '');
+        const iRutan = quill ? quill.getText().replace(/\n+$/, '') : null;
+        return {
+          ruta: id,
+          yjsTecken: iYjs.length,
+          visadeTecken: iRutan === null ? null : iRutan.length,
+          stammer: iRutan === null ? null : iYjs === iRutan,
+          harKoppling: Boolean(session.bindningar?.[id])
+        };
+      }),
+
       jag: Lagring.lasProfil(),
       deltagare: [...session.synk.awareness.getStates()].map(([id, t]) => ({
         klient: id,
