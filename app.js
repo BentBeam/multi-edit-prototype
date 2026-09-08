@@ -3,7 +3,7 @@ const QuillDelta = Quill.import('delta');
 import QuillCursors from 'quill-cursors';
 import { QuillBinding } from 'y-quill';
 
-import { APPNAMN, KODVERSION, SEKTIONER, DELTAGARFARGER, RUMSPREFIX } from './config.js';
+import { APPNAMN, KODVERSION, SEKTIONER, DELTAGARFARGER, RUMSPREFIX, RESPEKTERA_MINDRE_RORELSE } from './config.js';
 import { Lagring } from './lagring.js';
 import { anslut, deltagare } from './synk.js';
 import {
@@ -1441,6 +1441,13 @@ window.delatDokument = {
     };
   }
 };
+
+/* Stilmallen behöver veta om systemets önskan om mindre rörelse ska följas.
+   Ett css-villkor kan inte läsa en js-konstant, så valet skrivs på rot-elementet
+   och stilmallen tittar där. Se RESPEKTERA_MINDRE_RORELSE i config.js. */
+if (!RESPEKTERA_MINDRE_RORELSE) {
+  document.documentElement.dataset.rorelse = 'alltid';
+}
 
 window.addEventListener('hashchange', router);
 router();

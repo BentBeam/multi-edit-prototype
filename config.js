@@ -4,12 +4,23 @@
    statusraden, och skrivs ut i webbläsarens konsol vid start. Finns för att det
    ska gå att avgöra på en sekund om en webbläsare kör den senaste koden – den
    frågan har annars kostat oss mycket tid. */
-export const KODVERSION = '2026-09-08 b';
+export const KODVERSION = '2026-09-08 c';
 
 export const APPNAMN = 'Delat dokument';
 
 /* Hur många tillhörande rutor en sektion får utöver huvudrutan. */
 export const MAX_TILLAGG = 2;
+
+/* Ska markörstreckets puls stängas av för den som bett systemet om mindre
+   rörelse?
+ *
+ * Sant är rätt inställning för dem som ska testa prototypen: har någon
+ * "Minska rörelse" påslaget i sitt operativsystem finns det ett skäl till det,
+ * och pulsen bär ingen information som inte också syns utan den.
+ *
+ * Sätt den till falskt om du själv kör med "Minska rörelse" på och behöver se
+ * eller visa pulsen. Då går den för alla, oavsett vad de bett om. */
+export const RESPEKTERA_MINDRE_RORELSE = true;
 
 /* Lägg till, ta bort eller döp om sektioner här. Nyckeln (key) måste vara unik
    och bör inte ändras efter att någon börjat skriva – den är det som kopplar

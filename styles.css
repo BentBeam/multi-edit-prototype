@@ -296,9 +296,11 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
 }
 
 /* Rörelse är inte gratis för alla. Den som bett systemet om mindre rörelse får
-   ett stilla streck – det bär samma information, bara utan pulsen. */
+   ett stilla streck – det bär samma information, bara utan pulsen.
+   Undantaget är data-rorelse="alltid", som sätts av app.js när
+   RESPEKTERA_MINDRE_RORELSE i config.js är falskt. */
 @media (prefers-reduced-motion: reduce) {
-  .ql-cursors .ql-cursor .ql-cursor-caret {
+  :root:not([data-rorelse="alltid"]) .ql-cursors .ql-cursor .ql-cursor-caret {
     animation: none;
   }
 }
