@@ -1445,7 +1445,12 @@ window.delatDokument = {
         jagSjalv: id === session.synk.doc.clientID,
         namn: t?.user?.fulltNamn || t?.user?.name,
         skriver: t?.user?.skriver ?? null,
-        harMarkor: Boolean(t?.cursor)
+        harMarkor: Boolean(t?.cursor),
+
+        /* Varför markören är borta, om den är det: sant betyder att personen
+           klickade ut ur fältet med flit och rutan släpps direkt, falskt att
+           fönstret tappat fokus och fristen gäller. Se rutlas.js. */
+        fonsterfokus: t?.fokus?.fonster ?? null
       })),
       markorer: markorlage(session.synk, session.redigerare),
       upptagnaRutor: [...session.las].map(([sektion, vem]) => ({
