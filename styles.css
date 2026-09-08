@@ -232,9 +232,11 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
   visibility: visible !important;
   transition: none !important;
 
-  /* Hörnen mot markörstrecket är raka, de bortre rundade.
+  /* Helt rund, lika radie i alla fyra hörn. Ett stort tal ger en pillerform
+     oavsett hur bred flaggan blir av en eller två initialer – 50% hade gett en
+     ellips som växer med bredden.
      Påtvingad eftersom biblioteket sätter en egen radie. */
-  border-radius: 0 4px 4px 0 !important;
+  border-radius: 999px !important;
 
   /* Höjden sätts av markorer.js till streckets höjd, som biblioteket skriver
      som inline-stil per rad. Därför inget lodrätt indrag här: initialerna
@@ -242,7 +244,9 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  padding: 0 4px;
+  /* 8 px i ändarna, inte 4: pillerformens kurva äter av innerkanten, och med
+     4 px hamnade bokstäverna inne i den. */
+  padding: 0 8px;
   font-size: 10px;
   font-weight: 700;
   line-height: 1;
@@ -264,11 +268,36 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
 }
 
 /* Biblioteket speglar flaggan när den inte får plats till höger om markören.
-   Då hamnar den till vänster, och det raka hörnet byter sida så att det
-   fortfarande vilar mot strecket. */
+   Då hamnar den till vänster, med samma luft mot strecket. Radien behöver inte
+   spegelvändas längre – den är lika i alla hörn. */
 .ql-cursors .ql-cursor .ql-cursor-flag.flag-flipped {
-  border-radius: 4px 0 0 4px !important;
   transform: translate3d(calc(-100% - 2px), 0, 0) !important;
+}
+
+/* Strecket pulsar, så det syns att en levande person står där.
+ *
+ * Animationen ligger på strecket och inte på flaggan. De är syskonelement, så
+ * initialerna står stilla och läsbara medan strecket tonar – en blinkande
+ * flagga hade gjort namnet svårt att läsa.
+ *
+ * Tonar ned till 0.2 i stället för 0, så strecket aldrig försvinner helt: en
+ * markör som blir osynlig halva tiden är svår att följa med blicken. */
+@keyframes markorpuls {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+
+.ql-cursors .ql-cursor .ql-cursor-caret {
+  animation: markorpuls 1200ms ease-in-out infinite;
+}
+
+/* Rörelse är inte gratis för alla. Den som bett systemet om mindre rörelse får
+   ett stilla streck – det bär samma information, bara utan pulsen. */
+@media (prefers-reduced-motion: reduce) {
+  .ql-cursors .ql-cursor .ql-cursor-caret {
+    animation: none;
+  }
 }
 
 /* Bibliotekets egna marginaler runt initialerna nollställs, så indraget kommer
