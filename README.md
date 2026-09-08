@@ -372,9 +372,27 @@ Animationen ligger på **strecket**, inte på flaggan. De är syskonelement, så
 initialerna står stilla och läsbara medan strecket tonar – en blinkande flagga
 hade gjort namnet svårt att läsa.
 
-Pulsen stängs av vid `prefers-reduced-motion: reduce`. Har du "Minska rörelse"
-påslaget i systeminställningarna ser du alltså ett stilla streck, och det är
-avsiktligt – det bär samma information utan rörelsen.
+### Om systemets önskan om mindre rörelse
+
+`prefers-reduced-motion` är en mediefråga, precis som `prefers-color-scheme` för
+mörkt läge. Systeminställningen stoppar ingenting av sig själv och blockerar inga
+CSS-animationer – den exponerar bara ett ja eller nej som en stilmall kan fråga
+efter. Effekten finns bara därför att vi skrev en regel för den.
+
+Om den regeln ska gälla styrs av `RESPEKTERA_MINDRE_RORELSE` i `config.js`.
+`app.js` skriver valet som `data-rorelse="alltid"` på rot-elementet, eftersom ett
+css-villkor inte kan läsa en js-konstant, och stilmallen tittar där.
+
+**Den står på `false` i prototypen**, så pulsen går för alla. Skälet är
+praktiskt: den som designar den kör själv med "Minska rörelse" påslaget och måste
+kunna se och visa den. Verifierat i en webbläsare som rapporterar
+`prefers-reduced-motion: reduce` – rot-elementet får `data-rorelse="alltid"`,
+`animationName` blir `markorpuls` och `getAnimations()` visar en levande
+animation.
+
+**Sätt tillbaka till `true` i en skarp lösning.** Där finns riktiga användare som
+bett om mindre rörelse av skäl som väger tyngre än att en markör ska se levande
+ut, och pulsen bär ingen information som inte också syns utan den.
 
 Uppmätt opacitet över en cykel: 1,00 → 0,01 → 0,36 → 0,87 → 0,99 → 0,64 → 0,13 →
 0,01. Mellanvärdena är det som skiljer en toning från ett hårt blink.
