@@ -4,7 +4,7 @@
    statusraden, och skrivs ut i webbläsarens konsol vid start. Finns för att det
    ska gå att avgöra på en sekund om en webbläsare kör den senaste koden – den
    frågan har annars kostat oss mycket tid. */
-export const KODVERSION = '2026-09-08 c';
+export const KODVERSION = '2026-09-08 d';
 
 export const APPNAMN = 'Delat dokument';
 
@@ -18,9 +18,13 @@ export const MAX_TILLAGG = 2;
  * "Minska rörelse" påslaget i sitt operativsystem finns det ett skäl till det,
  * och pulsen bär ingen information som inte också syns utan den.
  *
- * Sätt den till falskt om du själv kör med "Minska rörelse" på och behöver se
- * eller visa pulsen. Då går den för alla, oavsett vad de bett om. */
-export const RESPEKTERA_MINDRE_RORELSE = true;
+ * Falskt just nu: Nicklas kör själv med "Minska rörelse" påslaget och ska kunna
+ * se och visa pulsen. Den går därför för alla, oavsett vad de bett om.
+ *
+ * Sätt tillbaka till sant i en skarp lösning. Där är avvägningen en annan: då
+ * finns riktiga användare som bett om mindre rörelse av skäl som väger tyngre
+ * än att en markör ska se levande ut. */
+export const RESPEKTERA_MINDRE_RORELSE = false;
 
 /* Lägg till, ta bort eller döp om sektioner här. Nyckeln (key) måste vara unik
    och bör inte ändras efter att någon börjat skriva – den är det som kopplar
