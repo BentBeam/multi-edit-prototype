@@ -360,20 +360,21 @@ ska fungera, så Cmd+C och Cmd+A släpps igenom.
 
 ## Strecket pulsar
 
-`@keyframes markorpuls` tonar markörstrecket mellan full opacitet och 0,2 på
-1200 ms med `ease-in-out`, så det syns att en levande person står där.
+`@keyframes markorpuls` tonar markörstrecket mellan full opacitet och **helt
+genomskinligt** på 1200 ms med `ease-in-out`, så det syns att en levande person
+står där. Första försöket tonade bara till 0,2 och var för svagt att uppfatta på
+ett 2 px streck.
 
 Animationen ligger på **strecket**, inte på flaggan. De är syskonelement, så
 initialerna står stilla och läsbara medan strecket tonar – en blinkande flagga
-hade gjort namnet svårt att läsa. Och den tonar till 0,2 i stället för 0: en
-markör som försvinner helt halva tiden är svår att följa med blicken.
+hade gjort namnet svårt att läsa.
 
 Pulsen stängs av vid `prefers-reduced-motion: reduce`. Har du "Minska rörelse"
 påslaget i systeminställningarna ser du alltså ett stilla streck, och det är
 avsiktligt – det bär samma information utan rörelsen.
 
-Uppmätt opacitet över en cykel: 1,00 → 0,21 → 0,49 → 0,90 → 0,99 → 0,71 → 0,30 →
-0,21. Mellanvärdena är det som skiljer en toning från ett hårt blink.
+Uppmätt opacitet över en cykel: 1,00 → 0,01 → 0,36 → 0,87 → 0,99 → 0,64 → 0,13 →
+0,01. Mellanvärdena är det som skiljer en toning från ett hårt blink.
 
 Pulsen är inte kopplad till om personen faktiskt skriver just nu. Vill man det
 finns `user.skriver` i närvarodatan, som redan styr texten "skriver här" mot
