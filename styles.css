@@ -244,9 +244,12 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  /* 8 px i ändarna, inte 4: pillerformens kurva äter av innerkanten, och med
-     4 px hamnade bokstäverna inne i den. */
-  padding: 0 8px;
+  /* Inget indrag. Initialerna centreras i stället, i båda riktningarna, i den
+     yta flaggan får utifrån: höjden och minsta bredden kommer från
+     markörstrecket via markorer.js. Med en eller två initialer räcker den ytan,
+     så flaggan blir en cirkel och bokstäverna hamnar i mitten. */
+  padding: 0;
+  justify-content: center;
   font-size: 10px;
   font-weight: 700;
   line-height: 1;
@@ -280,11 +283,11 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
  * initialerna står stilla och läsbara medan strecket tonar – en blinkande
  * flagga hade gjort namnet svårt att läsa.
  *
- * Tonar ned till 0.2 i stället för 0, så strecket aldrig försvinner helt: en
- * markör som blir osynlig halva tiden är svår att följa med blicken. */
+ * Tonar hela vägen till 0 och tillbaka. Ett 2 px streck som bara tonar till 0.2
+ * är för svagt att uppfatta – det var första försöket. */
 @keyframes markorpuls {
   0%   { opacity: 1; }
-  50%  { opacity: 0.2; }
+  50%  { opacity: 0; }
   100% { opacity: 1; }
 }
 

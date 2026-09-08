@@ -269,7 +269,15 @@ export function stadaMarkorer(synk, redigerare) {
          den följer med även när rättningen ovan ändrat streckets höjd. */
       const strecket = element.querySelector('.ql-cursor-caret-container');
       const flaggan = element.querySelector('.ql-cursor-flag');
-      if (strecket && flaggan) flaggan.style.height = strecket.style.height;
+      if (strecket && flaggan) {
+        flaggan.style.height = strecket.style.height;
+
+        /* Samma tal som minsta bredd gör flaggan till en cirkel när innehållet
+           är smalare än så. Initialerna är en eller två tecken och ryms alltid,
+           så bokstäverna står centrerade i en rund bricka i stället för att
+           klämmas mot pillerformens kurvor. */
+        flaggan.style.minWidth = strecket.style.height;
+      }
     });
   });
 }
