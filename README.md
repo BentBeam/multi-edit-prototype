@@ -436,3 +436,61 @@ för den andre ska `harMarkor` bli `false` och `fonsterfokus` bli `false` när d
 växlar bort från skrivfönstret. Står `fonsterfokus: true` med markören borta
 har låset släppt för tidigt, och då är det ordningen mellan händelserna som
 behöver ses om.
+
+
+## Textformatering
+
+Fetstil, kursivt, punktlista, numrerad lista, upphöjt, nedsänkt och rensa
+formatering. Knapparna ligger i **markeringsbubblan** tillsammans med
+"Kommentera", inte i en verktygsrad per fält — textrutorna ska fortsätta se ut
+som vanliga textareor.
+
+Medvetet utelämnat: understruket läses som en länk på webben, genomstruket säger
+samma sak som en kommentar, och en rubrik inne i en sammanfattning slåss med
+formulärets egna rubriker.
+
+### formats-vitlistan är det viktiga, inte knapparna
+
+```js
+formats: ['bold', 'italic', 'list', 'script', 'kommentar']
+```
+
+Listan styr vad som får **finnas** i texten, inte bara vad som har en knapp.
+Utan den tillåter Quill alla sina inbyggda format, och en inklistring från Word
+tar med teckenstorlekar, färger, typsnitt och rubriker. Verifierat: klistrar man
+in `<h1 style="font-size:32px;color:red">` plus `<u>`, `<s>` och
+`font-family` faller allt bort och bara texten blir kvar.
+
+`kommentar` är vårt eget inline-format och **måste** stå med i listan. Utan det
+raderas varje kommentarsmarkering i samma stund som vitlistan införs.
+
+### Rensa tar bara bort våra egna format
+
+`quill.removeFormat()` hade tagit kommentarsmarkeringen med sig och tystat
+sönder ankaret för en kommentar. Därför nollas formaten ett för ett i stället.
+Verifierat: fetstil och kommentar på samma ord, Rensa tar bort fetstilen och
+lämnar `data-trad` orört.
+
+### Knapparna göms i en upptagen ruta
+
+Formatknapparna är API-anrop och utlöser inget `beforeinput`, så de går runt
+spärren i `byggRuta` precis som Quills egna genvägar gjorde. Därför tas
+formatgruppen bort ur bubblan när rutan är upptagen av någon annan —
+"Kommentera" står kvar, eftersom det är rimligt att kommentera någon annans
+text men inte att ändra den.
+
+### Två detaljer
+
+Listorna stylas av `quill.snow.css`, som laddas i `index.html`. Skriv inga egna
+regler för `.ql-editor li` — Quill lägger listmarkören i elementets vänstra
+indrag, så en egen `padding` tar bort utrymmet markören ritas i och punkterna
+försvinner.
+
+Bubblan faller ned under markeringen när det inte finns plats ovanför, annars
+hamnar den över sektionsrubriken när man markerar på första raden. Villkoret är
+lådrelativt (`plats.top < hojd + 8`) — att blanda in `window.scrollY` jämför två
+olika koordinatsystem, och då blir villkoret aldrig sant.
+
+En ren formatändring skapar **ingen ny version** i historiken: signaturen i
+`server/versioner.js` byggs av `doc.getText()`, alltså oformaterad text.
+Dokumentet självt sparas ändå, eftersom det sparas som hela Yjs-tillståndet.
