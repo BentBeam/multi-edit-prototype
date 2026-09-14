@@ -323,13 +323,52 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
 /* Den valda tråden får sin färg via en regel som skrivs om i app.js, så att
    markeringen överlever när Quill bygger om texten. */
 
-.kommentera-knapp {
+/* Bubblan över markerad text: formatering till vänster, kommentar till höger.
+   Ligger som en rad i stället för en verktygsrad per fält, så textrutorna
+   fortsätter se ut som vanliga textareor. */
+.markeringsbubbla {
   position: absolute; z-index: 20;
-  padding: 4px 8px; font-size: 13px;
-  background: var(--text); color: #fff; border-color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px;
+  background: var(--text);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 24%);
 }
-.kommentera-knapp:hover:not(:disabled) { background: #000; }
-.kommentera-knapp[hidden] { display: none; }
+.markeringsbubbla[hidden] { display: none; }
+
+.bubbelgrupp { display: flex; align-items: center; gap: 2px; }
+.bubbelgrupp[hidden] { display: none; }
+
+/* Skiljelinjen mellan grupperna ritas av kommentarknappen, så den försvinner
+   av sig själv när formatgruppen är borta i en upptagen ruta. */
+.bubbelgrupp:not([hidden]) + .kommentera {
+  border-left: 1px solid rgb(255 255 255 / 24%);
+  border-radius: 0 4px 4px 0;
+  padding-left: 10px;
+}
+
+.bubbelknapp {
+  min-width: 24px; height: 24px;
+  padding: 0 6px;
+  border: 0; border-radius: 4px;
+  background: none; color: #fff;
+  font-size: 13px; line-height: 1;
+  cursor: pointer;
+}
+.bubbelknapp:hover { background: rgb(255 255 255 / 16%); }
+.bubbelknapp.aktiv { background: rgb(255 255 255 / 28%); }
+.bubbelknapp:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+.bubbelknapp.fet { font-weight: 700; }
+.bubbelknapp.kursiv { font-style: italic; font-family: Georgia, serif; }
+.bubbelknapp.kommentera { padding: 0 8px; }
+
+/* Formaten i texten. Listor, upphöjt och nedsänkt sköts av quill.snow.css,
+   som är laddad i index.html – rör dem inte här. Quill lägger listmarkören i
+   li-elementets vänstra indrag, så en egen padding-regel tar bort utrymmet
+   markören ritas i och listan tappar sina punkter.
+
+   Fetstilen justeras dock: 700 är för tungt mot temats övriga vikter. */
+.ql-editor strong, .ql-editor b { font-weight: 600; }
 
 #kommentarer { display: flex; flex-direction: column; gap: 8px; }
 .kommentarrubrik { margin: 0; font-size: 13px; color: var(--text-dampad); }

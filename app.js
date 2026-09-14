@@ -476,7 +476,15 @@ function byggRuta(behallare, sektion, rutaid) {
          historik – ett enda Cmd+Z raderade då den andres mening, i båda
          fönstren. Verifierat innan och efter. */
       history: { userOnly: true }
-    }
+    },
+
+    /* Vilka format som får FINNAS i texten, inte bara vilka som har en knapp.
+       Klistrar någon in från Word faller teckenstorlekar, färger, typsnitt och
+       rubriker bort här. Utan listan tillåter Quill allt det.
+
+       kommentar är vårt eget inline-format och MÅSTE stå med – utan den raderas
+       alla kommentarsmarkeringar i samma stund som listan införs. */
+    formats: ['bold', 'italic', 'list', 'script', 'kommentar']
   });
 
   const bindning = new QuillBinding(session.synk.text(rutaid), quill, session.synk.awareness);
@@ -1155,39 +1163,101 @@ function personFor(klientId) {
 
 /* ---------- Kommentarer ---------- */
 
-function kommentarknapp() {
-  let knapp = document.getElementById('kommentera-knapp');
-  if (!knapp) {
-    knapp = document.createElement('button');
-    knapp.id = 'kommentera-knapp';
-    knapp.className = 'kommentera-knapp';
-    knapp.textContent = 'Kommentera';
-    knapp.hidden = true;
-    /* Utan detta tappar textrutan markeringen så fort man trycker ned musknappen,
-       och knappen hinner försvinna innan klicket går fram. */
-    knapp.addEventListener('mousedown', e => e.preventDefault());
-    document.body.append(knapp);
-  }
-  return knapp;
+/* Formatknapparna i markeringsbubblan.
+ *
+ * Inga rubriker, inget understruket och inget genomstruket, med avsikt:
+ * understruket läses som en länk på webben, genomstruket säger samma sak som en
+ * kommentar, och en rubrik inne i en sammanfattning slåss med formulärets egna
+ * rubriker. */
+const FORMATKNAPPAR = [
+  { format: 'bold',   varde: true,      etikett: 'B',   titel: 'Fetstil (⌘B)',     klass: 'fet' },
+  { format: 'italic', varde: true,      etikett: 'I',   titel: 'Kursiv (⌘I)',      klass: 'kursiv' },
+  { format: 'list',   varde: 'bullet',  etikett: '•',   titel: 'Punktlista' },
+  { format: 'list',   varde: 'ordered', etikett: '1.',  titel: 'Numrerad lista' },
+  { format: 'script', varde: 'super',   etikett: 'x²',  titel: 'Upphöjt' },
+  { format: 'script', varde: 'sub',     etikett: 'x₂',  titel: 'Nedsänkt' }
+];
+
+let bubblan = null;
+
+/* Bubblan som dyker upp över markerad text. Byggs en gång och flyttas sedan. */
+function markeringsbubbla() {
+  if (bubblan) return bubblan;
+
+  const rot = document.createElement('div');
+  rot.id = 'markeringsbubbla';
+  rot.className = 'markeringsbubbla';
+  rot.hidden = true;
+
+  /* Utan detta tappar textrutan markeringen så fort man trycker ned musknappen,
+     och bubblan hinner försvinna innan klicket går fram. */
+  rot.addEventListener('mousedown', e => e.preventDefault());
+
+  const formatgrupp = document.createElement('div');
+  formatgrupp.className = 'bubbelgrupp';
+
+  const knappar = FORMATKNAPPAR.map(post => {
+    const knapp = document.createElement('button');
+    knapp.type = 'button';
+    knapp.className = 'bubbelknapp' + (post.klass ? ' ' + post.klass : '');
+    knapp.textContent = post.etikett;
+    knapp.title = post.titel;
+    formatgrupp.append(knapp);
+    return { ...post, knapp };
+  });
+
+  const rensa = document.createElement('button');
+  rensa.type = 'button';
+  rensa.className = 'bubbelknapp';
+  rensa.textContent = 'Rensa';
+  rensa.title = 'Ta bort formatering ur markeringen';
+  formatgrupp.append(rensa);
+
+  const kommentera = document.createElement('button');
+  kommentera.type = 'button';
+  kommentera.className = 'bubbelknapp kommentera';
+  kommentera.textContent = 'Kommentera';
+
+  rot.append(formatgrupp, kommentera);
+  document.body.append(rot);
+
+  bubblan = { rot, formatgrupp, knappar, rensa, kommentera };
+  return bubblan;
 }
 
-/* Visar knappen "Kommentera" ovanför markerad text. */
+/* Visar bubblan över markerad text, med formatknapparna i rätt läge. */
 function kopplaMarkering(quill, rutaid) {
-  quill.on('selection-change', range => {
-    const knapp = kommentarknapp();
+  function visa(range) {
+    const b = markeringsbubbla();
 
     if (!range || range.length === 0 || !quill.isEnabled()) {
-      knapp.hidden = true;
+      b.rot.hidden = true;
       return;
     }
 
-    const plats = quill.getBounds(range.index, range.length);
-    const ruta = quill.container.getBoundingClientRect();
-    knapp.style.top = (window.scrollY + ruta.top + plats.top - 36) + 'px';
-    knapp.style.left = (window.scrollX + ruta.left + plats.left) + 'px';
-    knapp.hidden = false;
+    /* I en upptagen ruta får man markera, läsa och kommentera – men inte ändra.
+       Formatknapparna är API-anrop och utlöser inget beforeinput, så de går runt
+       spärren i byggRuta. Därför tas de bort här, inte blockeras. */
+    b.formatgrupp.hidden = Boolean(arLast(session?.las, rutaid));
 
-    knapp.onclick = () => {
+    const nu = quill.getFormat(range);
+    b.knappar.forEach(post => {
+      post.knapp.classList.toggle('aktiv', nu[post.format] === post.varde);
+      post.knapp.onclick = () => {
+        const pa = quill.getFormat()[post.format] === post.varde;
+        quill.format(post.format, pa ? false : post.varde, 'user');
+        visa(quill.getSelection());
+      };
+    });
+
+    /* Rensar bara våra egna format, inte allt. quill.removeFormat hade tagit
+       kommentarsmarkeringen med sig och tystat sönder en kommentars ankare. */
+    b.rensa.onclick = () => {
+      ['bold', 'italic', 'script', 'list'].forEach(namn => quill.format(namn, false, 'user'));
+      visa(quill.getSelection());
+    };
+
+    b.kommentera.onclick = () => {
       pastKommentar = {
         sektion: rutaid,
         index: range.index,
@@ -1195,11 +1265,21 @@ function kopplaMarkering(quill, rutaid) {
         ledtext: quill.getText(range.index, range.length).trim().slice(0, 90),
         text: ''
       };
-      knapp.hidden = true;
+      b.rot.hidden = true;
       ritaKommentarer();
       document.getElementById('nytt-inlagg')?.focus();
     };
-  });
+
+    /* Synlig först, sedan mätt: höjden behövs för att lägga bubblan ovanför
+       markeringen, och ett gömt element saknar mått. */
+    b.rot.hidden = false;
+    const plats = quill.getBounds(range.index, range.length);
+    const ruta = quill.container.getBoundingClientRect();
+    b.rot.style.top = (window.scrollY + ruta.top + plats.top - b.rot.offsetHeight - 8) + 'px';
+    b.rot.style.left = (window.scrollX + ruta.left + plats.left) + 'px';
+  }
+
+  quill.on('selection-change', visa);
 }
 
 /* Färgar den valda trådens textstycke. Görs som en css-regel i stället för en
