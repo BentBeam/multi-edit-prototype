@@ -1277,11 +1277,13 @@ function kopplaMarkering(quill, rutaid) {
     const ruta = quill.container.getBoundingClientRect();
     const hojd = b.rot.offsetHeight;
 
-    /* Ovanför markeringen när det finns plats, annars under. Markerar man på
-       fältets första rad hamnar bubblan annars över sektionsrubriken, och det
-       är det vanligaste fallet av alla. */
-    const ovanfor = ruta.top + plats.top - hojd - 8;
-    const fallerNed = ovanfor < window.scrollY + 8;
+    /* Ovanför markeringen när det finns plats i fältet, annars under.
+       Markerar man på första raden hamnar bubblan annars över sektionsrubriken,
+       och det är det vanligaste fallet av alla.
+
+       Måttet är lådrelativt, som plats.top: att blanda in window.scrollY här
+       jämför två olika koordinatsystem och villkoret blir aldrig sant. */
+    const fallerNed = plats.top < hojd + 8;
 
     b.rot.style.top = (window.scrollY + (fallerNed
       ? ruta.top + plats.bottom + 8
