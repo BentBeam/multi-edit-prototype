@@ -1270,12 +1270,22 @@ function kopplaMarkering(quill, rutaid) {
       document.getElementById('nytt-inlagg')?.focus();
     };
 
-    /* Synlig först, sedan mätt: höjden behövs för att lägga bubblan ovanför
-       markeringen, och ett gömt element saknar mått. */
+    /* Synlig först, sedan mätt: höjden behövs för att placera bubblan, och ett
+       gömt element saknar mått. */
     b.rot.hidden = false;
     const plats = quill.getBounds(range.index, range.length);
     const ruta = quill.container.getBoundingClientRect();
-    b.rot.style.top = (window.scrollY + ruta.top + plats.top - b.rot.offsetHeight - 8) + 'px';
+    const hojd = b.rot.offsetHeight;
+
+    /* Ovanför markeringen när det finns plats, annars under. Markerar man på
+       fältets första rad hamnar bubblan annars över sektionsrubriken, och det
+       är det vanligaste fallet av alla. */
+    const ovanfor = ruta.top + plats.top - hojd - 8;
+    const fallerNed = ovanfor < window.scrollY + 8;
+
+    b.rot.style.top = (window.scrollY + (fallerNed
+      ? ruta.top + plats.bottom + 8
+      : ruta.top + plats.top - hojd - 8)) + 'px';
     b.rot.style.left = (window.scrollX + ruta.left + plats.left) + 'px';
   }
 
