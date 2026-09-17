@@ -163,9 +163,12 @@ export function uppdateraLas(synk, redigerare) {
       huvud.append(marke);
     }
     if (vem && marke) {
+      /* "också" hör efter verbet, inte före: "är också här", inte "också är
+         här". Ordningen på delarna är därför namn, verb, också, här. */
       marke.textContent = vem.namn
+        + (vem.skriver ? ' skriver' : ' är')
         + (last_ ? '' : ' också')
-        + (vem.skriver ? ' skriver här' : ' är här');
+        + ' här';
     } else if (marke) {
       marke.remove();
     }
