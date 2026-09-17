@@ -494,3 +494,57 @@ olika koordinatsystem, och då blir villkoret aldrig sant.
 En ren formatändring skapar **ingen ny version** i historiken: signaturen i
 `server/versioner.js` byggs av `doc.getText()`, alltså oformaterad text.
 Dokumentet självt sparas ändå, eftersom det sparas som hela Yjs-tillståndet.
+
+
+## Delat fält: en sektion utan låsning
+
+`delatFalt: true` på en sektion i `config.js` stänger av låsningen där. Satt på
+**Förväntade resultat**, för att kunna visa i samma dokument att synken klarar
+flera skribenter i samma ruta — och samtidigt ha två sektioner kvar som visar
+det låsta beteendet. Sätt den på en sektion i taget; med den på alla försvinner
+jämförelsen.
+
+### Att bara släppa spärren räcker inte
+
+En ruta som *ser* låst ut men går att skriva i är värre än båda alternativen.
+Därför skiljs **lås** från **närvaro**:
+
+| | Låst ruta | Delad ruta |
+|---|---|---|
+| Ram | heldragen i personens färg | **streckad** i personens färg |
+| Botten | tonad | ingen toning |
+| Pekare | `not-allowed` | vanlig |
+| Besked | "Namn skriver här" | "Namn skriver **också** här" |
+| Inmatning | spärrad | tillåten |
+
+`uppdateraLas()` returnerar därför `{ last, narvarande }`. Spärrarna frågar
+`last`, som bara innehåller låsta rutor — alla befintliga guards fungerar
+oförändrade. Sektionshuvudet får dessutom märket "flera kan skriva samtidigt",
+för en demo som kräver en muntlig förklaring visar ingenting.
+
+### Sammanslagning vägras fortfarande
+
+`forsokSlaIhop` frågar `narvarande`, inte `last`. Att slå ihop två fält rycker
+text ur händerna på den som skriver, och det är inte samma sak som att skriva
+tillsammans.
+
+### Verifierat i två fönster
+
+- Anna skrev i det delade fältet, Bertil skrev i **samma** fält utan att
+  blockeras, och båda fönstren konvergerade till samma text.
+- `upptagnaRutor: []` och `deladeRutor: [resultat]` medan någon stod där.
+  Klassen blev `ruta-delad`, inte `ruta-upptagen`.
+- Låsta sektioner låser fortfarande: Annas 24 tecken i ett fält Bertil höll kom
+  inte in, och beskedet "Bertil Berg är i den rutan just nu" visades.
+
+### Två testfällor som gjorde första försöket ogiltigt
+
+Flikarna i testpanelen **delar localStorage**, så profilen skrivs över av den
+flik som laddade senast — båda blev "Bertil Berg". Sätt profilen och ladda om en
+flik i taget.
+
+Och **tie-breaket avgör vem som blockeras**: lägst deltagarnummer vinner ett
+omtvistat fält. Vill du visa att en låst ruta spärrar måste den som *försöker*
+skriva ha det högre numret, annars tar hen över fältet och släpps in helt
+korrekt. Läs numren med `delatDokument.tillstand().deltagare` innan du drar en
+slutsats.
