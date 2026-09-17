@@ -517,6 +517,25 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
 }
 .ruta.ruta-upptagen .ql-editor { cursor: not-allowed; }
 
+/* Delad ruta: någon annan står där, men du får skriva. Streckad ram i personens
+   färg, ingen tonad botten och ingen förbudspekare – allt tre säger "stängt",
+   och det är precis vad den här rutan inte är. */
+.ruta.ruta-delad .ql-container.ql-snow {
+  border-color: var(--upptagenfarg);
+  border-style: dashed;
+}
+
+/* Märket i sektionshuvudet, så det syns att sektionen beter sig annorlunda. */
+.delat-marke {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-dampad);
+  border: 1px dashed var(--ram);
+  border-radius: 16px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
 .upptagen-marke {
   margin-left: auto;
   font-size: 12px;

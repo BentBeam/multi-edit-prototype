@@ -24,7 +24,7 @@
 
 import * as Y from 'yjs';
 import { SEKTIONER } from './config.js';
-import { allaRutor, rutorFor } from './rutor.js';
+import { allaRutor, rutorFor, sektionsnyckelFor } from './rutor.js';
 
 /* Hur länge en ruta hålls kvar efter att personens markör försvunnit.
  *
@@ -103,22 +103,48 @@ function agarePerRuta(synk) {
   return perRuta;
 }
 
-/* Märker upp upptagna rutor och returnerar vilka de är. */
+/* Har sektionen som rutan hör till någon låsning alls?
+ *
+ * En sektion med delatFalt i config.js låser aldrig. Den finns för att kunna
+ * visa att flera kan skriva i samma ruta samtidigt. */
+function harLas(rutaid) {
+  const nyckel = sektionsnyckelFor(rutaid);
+  const sektion = SEKTIONER.find(post => post.key === nyckel);
+  return !sektion?.delatFalt;
+}
+
+/* Märker upp rutor där någon annan står, och returnerar vilka som är låsta.
+ *
+ * Två fall skiljs åt. I en vanlig sektion är rutan LÅST: ram, tonad botten och
+ * spärr mot inmatning. I en delad sektion visas bara att någon är där – man får
+ * skriva ändå. Därför räcker det inte att släppa spärren; en ruta som ser låst
+ * ut men går att skriva i är värre än båda alternativen.
+ *
+ * Returnerar både de låsta rutorna och alla rutor någon annan står i. Det andra
+ * behövs för sammanslagning, som fortfarande vägras när någon är inne: att slå
+ * ihop två fält rycker text ur händerna på någon, och det är inte samma sak som
+ * att skriva tillsammans. */
 export function uppdateraLas(synk, redigerare) {
   const agare = agarePerRuta(synk);
+  const narvarande = new Map();
   const last = new Map();
 
-  /* Äger jag rutan är den inte låst för mig, även om någon annan står där. */
+  /* Äger jag rutan står jag inte i vägen för mig själv. */
   agare.forEach((vem, rutaid) => {
-    if (vem.klientId !== synk.doc.clientID) last.set(rutaid, vem);
+    if (vem.klientId === synk.doc.clientID) return;
+    narvarande.set(rutaid, vem);
+    if (harLas(rutaid)) last.set(rutaid, vem);
   });
 
   allaRutor(synk).forEach(({ id }) => {
     const ruta = document.getElementById('ruta-' + id);
     if (!ruta) return;
 
-    const vem = last.get(id) || null;
-    ruta.classList.toggle('ruta-upptagen', Boolean(vem));
+    const vem = narvarande.get(id) || null;
+    const last_ = Boolean(vem) && harLas(id);
+
+    ruta.classList.toggle('ruta-upptagen', last_);
+    ruta.classList.toggle('ruta-delad', Boolean(vem) && !last_);
 
     if (vem) {
       ruta.style.setProperty('--upptagenfarg', vem.farg);
@@ -126,7 +152,8 @@ export function uppdateraLas(synk, redigerare) {
       ruta.style.removeProperty('--upptagenfarg');
     }
 
-    /* Beskedet i rutans huvud: vem, och om hen skriver just nu. */
+    /* Beskedet i rutans huvud: vem, och om hen skriver just nu. "också" i den
+       delade sektionen, eftersom man får vara där samtidigt. */
     const huvud = ruta.querySelector('.ruta-huvud');
     let marke = ruta.querySelector('.upptagen-marke');
 
@@ -136,13 +163,15 @@ export function uppdateraLas(synk, redigerare) {
       huvud.append(marke);
     }
     if (vem && marke) {
-      marke.textContent = vem.namn + (vem.skriver ? ' skriver här' : ' är här');
+      marke.textContent = vem.namn
+        + (last_ ? '' : ' också')
+        + (vem.skriver ? ' skriver här' : ' är här');
     } else if (marke) {
       marke.remove();
     }
   });
 
-  return last;
+  return { last, narvarande };
 }
 
 /* Är rutan upptagen av någon annan? */

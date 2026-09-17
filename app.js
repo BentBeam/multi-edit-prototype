@@ -401,6 +401,16 @@ function byggSektion(behallare, sektion) {
 
   block.querySelector('h2').textContent = sektion.rubrik;
   block.querySelector('.hjalptext').textContent = sektion.hjalptext;
+
+  /* Utan det här syns det inte att sektionen beter sig annorlunda, och en demo
+     som kräver en muntlig förklaring visar ingenting. */
+  if (sektion.delatFalt) {
+    const marke = document.createElement('span');
+    marke.className = 'delat-marke';
+    marke.textContent = 'flera kan skriva samtidigt';
+    marke.title = 'Den här sektionen låser inte fältet – se delatFalt i config.js';
+    block.querySelector('.sektion-huvud').append(marke);
+  }
   behallare.append(block);
 
   const knapp = block.querySelector('.laggtill');
@@ -625,8 +635,11 @@ function synkaStruktur() {
 }
 
 async function forsokSlaIhop(sektion, nummer) {
-  const ovan = arLast(session.las, rutaId(sektion.key, nummer - 1));
-  const denna = arLast(session.las, rutaId(sektion.key, nummer));
+  /* Frågar närvaron, inte låset: sammanslagning vägras även i en delad sektion.
+     Att slå ihop två fält rycker text ur händerna på den som skriver, och det är
+     inte samma sak som att skriva tillsammans. */
+  const ovan = arLast(session.narvaro, rutaId(sektion.key, nummer - 1));
+  const denna = arLast(session.narvaro, rutaId(sektion.key, nummer));
   const upptagen = ovan || denna;
 
   if (upptagen) {
@@ -643,8 +656,8 @@ async function forsokSlaIhop(sektion, nummer) {
   if (!ja) return;
 
   /* Kontrollera igen – någon kan ha hunnit ställa sig i rutan. */
-  const nu = arLast(session.las, rutaId(sektion.key, nummer - 1))
-          || arLast(session.las, rutaId(sektion.key, nummer));
+  const nu = arLast(session.narvaro, rutaId(sektion.key, nummer - 1))
+          || arLast(session.narvaro, rutaId(sektion.key, nummer));
   if (nu) {
     visaLasbesked(nu);
     return;
@@ -702,7 +715,11 @@ function satLast(last) {
 function schemalaggMarkorstadning() {
   if (!session) return;
   stadaMarkorer(session.synk, session.redigerare);
-  session.las = uppdateraLas(session.synk, session.redigerare);
+  /* las = rutor som är låsta för mig. narvaro = alla rutor någon annan står i,
+     låsta eller inte. Sammanslagning frågar narvaro, spärrarna frågar las. */
+  const lage = uppdateraLas(session.synk, session.redigerare);
+  session.las = lage.last;
+  session.narvaro = lage.narvarande;
 }
 
 /* Kort besked när någon försöker skriva i ett upptaget stycke. */
@@ -1589,7 +1606,12 @@ window.delatDokument = {
         sektion,
         av: vem.namn,
         skriver: vem.skriver
-      }))
+      })),
+
+      /* Rutor där någon annan står utan att rutan är låst – delade sektioner. */
+      deladeRutor: [...(session.narvaro || [])]
+        .filter(([rutaid]) => !session.las.has(rutaid))
+        .map(([sektion, vem]) => ({ sektion, av: vem.namn, skriver: vem.skriver }))
     };
   }
 };

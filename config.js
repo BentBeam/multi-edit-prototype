@@ -4,7 +4,7 @@
    statusraden, och skrivs ut i webbläsarens konsol vid start. Finns för att det
    ska gå att avgöra på en sekund om en webbläsare kör den senaste koden – den
    frågan har annars kostat oss mycket tid. */
-export const KODVERSION = '2026-09-14 c';
+export const KODVERSION = '2026-09-17 a';
 
 export const APPNAMN = 'Delat dokument';
 
@@ -46,7 +46,15 @@ export const SEKTIONER = [
     key: 'resultat',
     rubrik: 'Förväntade resultat',
     hjalptext: 'Vilken effekt förväntar ni er, och för vem?',
-    maxTecken: 2000
+    maxTecken: 2000,
+
+    /* Delat fält: ingen låsning här, flera får skriva samtidigt i samma ruta.
+       Finns för att kunna visa att synken klarar det – Yjs slår ihop
+       ändringarna oavsett vem som skrev vad först.
+
+       Sätt den på en sektion i taget. Med den på alla försvinner poängen med
+       att kunna jämföra de två sätten sida vid sida i samma dokument. */
+    delatFalt: true
   }
 ];
 
