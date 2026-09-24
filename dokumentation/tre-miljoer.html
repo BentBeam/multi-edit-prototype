@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+</head>
+<body>
+<title>Tre miljöer, ett dokument</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Azeret+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --ground:      #F2F3F7;
+    --surface:     #FFFFFF;
+    --surface-alt: #E6E8F0;
+    --ink:         #15171E;
+    --ink-soft:    #545A6B;
+    --ink-faint:   #878DA0;
+    --rule:        #D3D7E3;
+    --accent:      #3B4CA8;
+    --accent-soft: #E2E5F5;
+    --signal:      #A8480F;
+    --signal-soft: #F6E8DC;
+
+    --display: "Chivo", ui-sans-serif, system-ui, sans-serif;
+    --body: "Newsreader", ui-serif, Georgia, serif;
+    --mono: "Azeret Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #12141A;
+      --surface:     #1B1E27;
+      --surface-alt: #242833;
+      --ink:         #E8EAF0;
+      --ink-soft:    #A6ACBC;
+      --ink-faint:   #767D90;
+      --rule:        #323744;
+      --accent:      #93A3F0;
+      --accent-soft: #23294A;
+      --signal:      #E29B62;
+      --signal-soft: #34251A;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #12141A;
+    --surface:     #1B1E27;
+    --surface-alt: #242833;
+    --ink:         #E8EAF0;
+    --ink-soft:    #A6ACBC;
+    --ink-faint:   #767D90;
+    --rule:        #323744;
+    --accent:      #93A3F0;
+    --accent-soft: #23294A;
+    --signal:      #E29B62;
+    --signal-soft: #34251A;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .ark {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  .spalt { max-width: 680px; }
+
+  /* ---------- Huvud ---------- */
+
+  header { display: flex; flex-direction: column; gap: 16px; }
+
+  .ogonbryn {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(32px, 5.4vw, 52px);
+    line-height: 1.03;
+    letter-spacing: -0.028em;
+    margin: 0;
+    max-width: 20ch;
+    text-wrap: balance;
+  }
+
+  .ingress {
+    font-size: 19px;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  .adresser {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 32px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink-faint);
+  }
+  .adresser b { color: var(--ink-soft); font-weight: 500; }
+
+  /* ---------- Sektioner ---------- */
+
+  section { display: flex; flex-direction: column; gap: 20px; }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+    margin: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--ink);
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--ink-faint);
+    margin: 0 0 6px;
+  }
+
+  p { margin: 0; max-width: 66ch; }
+  p + p { margin-top: 14px; }
+
+  strong { font-weight: 600; }
+
+  em.term {
+    font-style: normal;
+    font-family: var(--mono);
+    font-size: 0.84em;
+    background: var(--surface-alt);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.82em;
+    background: var(--surface-alt);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  pre {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 0;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  pre .kom { color: var(--ink-faint); }
+
+  /* ---------- Figurer ---------- */
+
+  figure {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ritflak {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 22px 20px;
+    overflow-x: auto;
+  }
+  .ritflak svg { display: block; width: 100%; min-width: 620px; height: auto; }
+
+  figcaption {
+    font-size: 15px;
+    color: var(--ink-soft);
+    max-width: 74ch;
+  }
+  figcaption b { color: var(--ink); font-weight: 600; }
+
+  svg text { font-family: var(--mono); fill: currentColor; }
+  .lada { fill: var(--surface); stroke: currentColor; stroke-width: 1.4; }
+  .lada-inre { fill: var(--surface-alt); stroke: var(--rule); stroke-width: 1; }
+  .titel { font-size: 13px; font-weight: 500; }
+  .under { font-size: 11px; fill: var(--ink-soft); }
+  .kant { stroke: currentColor; stroke-width: 1.4; fill: none; }
+  .synk { stroke: var(--accent); stroke-width: 2; fill: none; }
+  .synk-text { fill: var(--accent); font-size: 11px; font-weight: 500; }
+  .spar { stroke: var(--signal); stroke-width: 1.8; fill: none; }
+  .spar-text { fill: var(--signal); font-size: 11px; font-weight: 500; }
+  .streckad { stroke-dasharray: 5 4; }
+  .siffra { fill: var(--accent); font-size: 11px; font-weight: 500; }
+  .ringen { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; }
+
+  /* ---------- Tabeller ---------- */
+
+  .tabellhylsa { overflow-x: auto; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 15px;
+    min-width: 480px;
+  }
+  th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--ink-faint);
+    padding: 0 18px 9px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: bottom;
+  }
+  td {
+    padding: 11px 18px 11px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  td:last-child, th:last-child { padding-right: 0; }
+  td.kod { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.namn { font-weight: 600; }
+
+  /* ---------- Miljökort ---------- */
+
+  .miljoer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .miljo {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .miljo .vem {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .miljo b {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+  }
+  .miljo p { font-size: 15px; color: var(--ink-soft); max-width: none; }
+  .miljo .adress {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    word-break: break-all;
+  }
+
+  /* ---------- Rutor med eftertryck ---------- */
+
+  .obs {
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .obs h3 { color: var(--accent); margin: 0; }
+  .obs p { font-size: 16px; }
+
+  .varning {
+    background: var(--signal-soft);
+    border-radius: 8px;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .varning h3 { color: var(--signal); margin: 0; }
+  .varning p { font-size: 16px; }
+
+  ul { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 9px; max-width: 66ch; }
+  li::marker { color: var(--ink-faint); }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    line-height: 1.8;
+  }
+</style>
+
+<div class="ark">
+
+  <header>
+    <div class="ogonbryn">Teknisk uppsättning · Delat dokument</div>
+    <h1>Tre miljöer, ett dokument</h1>
+    <p class="ingress">Prototypen låter flera personer skriva i samma text samtidigt, via en delad länk. Den består av tre delar som ligger hos två leverantörer, och den håller ihop utan att någon behöver äga sanningen. Det sista är hela poängen — och det som är värt att förklara först.</p>
+    <div class="adresser">
+      <span>Sida: <b>multi-edit-prototype.netlify.app</b></span>
+      <span>Synk: <b>multi-edit-sync.onrender.com</b></span>
+      <span>Kod: <b>BentBeam/multi-edit-prototype</b></span>
+      <span>Omfång: <b>3 306 rader</b></span>
+    </div>
+  </header>
+
+  <section>
+    <h2>Ingen behöver ha rätt</h2>
+    <p>Två personer skriver i samma mening samtidigt. Vem vinner? I de flesta system måste någon avgöra det: en server som låser, en klient som är utsedd till original, eller en sammanslagning som någon får rätta efteråt.</p>
+    <p>Här avgör ingen. Texten är en <strong>CRDT</strong> — en datatyp där ändringar är byggda för att kunna slås ihop i vilken ordning som helst och alltid ge samma resultat. Två personer som skriver samtidigt får båda sin text; ordningen mellan tecknen blir densamma i alla webbläsare, oavsett vem som fick vad först. Biblioteket heter <em class="term">Yjs</em>.</p>
+    <div class="obs">
+      <h3>Vad det får för följder</h3>
+      <p>Servern behöver inte vara en auktoritet, bara en brevbärare med minne. Nätet får försvinna mitt i en mening utan att något går förlorat. Och det finns ingen konflikthantering att bygga, för det finns inga konflikter att hantera — bara ändringar som ännu inte hunnit fram.</p>
+    </div>
+    <p>Det är också skälet till att jag avrådde från en idé som låg nära till hands tidigt: att låta dokumentets skapare vara <em class="term">master</em>. Det behövs inte, och det går sönder så snart nätet delar sig i två halvor som båda tror att de är originalet.</p>
+  </section>
+
+  <section>
+    <h2>Miljöerna och vad var och en gör</h2>
+
+    <figure>
+      <div class="ritflak">
+        <svg viewBox="0 0 960 540" role="img" aria-label="Karta över miljöerna: Netlify levererar den statiska sidan en gång till varje webbläsare. Varje webbläsare håller en öppen WebSocket mot synkservern hos Render, som sparar dokumentet till Netlify Blobs var åttonde sekund och läser tillbaka det vid uppstart. Varje webbläsare har också en egen kopia i IndexedDB.">
+          <defs>
+            <marker id="pil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="currentColor"></path>
+            </marker>
+            <marker id="pil-synk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="var(--accent)"></path>
+            </marker>
+            <marker id="pil-spar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="var(--signal)"></path>
+            </marker>
+          </defs>
+
+          <!-- Netlify, statisk sida -->
+          <rect class="lada" x="20" y="160" width="190" height="90" rx="6"></rect>
+          <text class="titel" x="36" y="188">Netlify</text>
+          <text class="under" x="36" y="210">statisk sida</text>
+          <text class="under" x="36" y="228">HTML, JS, CSS</text>
+
+          <!-- Fläkt ut till båda webbläsarna -->
+          <line class="kant" x1="210" y1="205" x2="244" y2="205" marker-end="url(#pil)"></line>
+          <line class="kant" x1="248" y1="85" x2="248" y2="355"></line>
+          <line class="kant" x1="248" y1="85" x2="294" y2="85" marker-end="url(#pil)"></line>
+          <line class="kant" x1="248" y1="355" x2="294" y2="355" marker-end="url(#pil)"></line>
+          <text class="under" x="310" y="209">hämtas en gång</text>
+
+          <!-- Webbläsare Anna -->
+          <rect class="lada" x="300" y="30" width="280" height="110" rx="6"></rect>
+          <text class="titel" x="316" y="54">Webbläsare · Anna</text>
+          <text class="under" x="316" y="74">Quill + Yjs i minnet</text>
+          <rect class="lada-inre" x="316" y="84" width="248" height="38" rx="4"></rect>
+          <text class="under" x="328" y="100">IndexedDB</text>
+          <text class="under" x="328" y="114">egen kopia av dokumentet</text>
+
+          <!-- Webbläsare Bertil -->
+          <rect class="lada" x="300" y="300" width="280" height="110" rx="6"></rect>
+          <text class="titel" x="316" y="324">Webbläsare · Bertil</text>
+          <text class="under" x="316" y="344">Quill + Yjs i minnet</text>
+          <rect class="lada-inre" x="316" y="354" width="248" height="38" rx="4"></rect>
+          <text class="under" x="328" y="370">IndexedDB</text>
+          <text class="under" x="328" y="384">egen kopia av dokumentet</text>
+
+          <!-- Synkserver -->
+          <rect class="lada" x="680" y="150" width="270" height="120" rx="6"></rect>
+          <text class="titel" x="696" y="176">Render · synkserver</text>
+          <text class="under" x="696" y="198">Node 22, ws</text>
+          <text class="under" x="696" y="216">ett Y.Doc per rum i minnet</text>
+          <text class="under" x="696" y="234">HTTP-api för versioner</text>
+          <text class="under" x="696" y="252">somnar vid inaktivitet</text>
+
+          <!-- WebSocket, dubbelriktad, dragen i en egen bana -->
+          <polyline class="synk" points="584,85 630,85 630,190 676,190" marker-start="url(#pil-synk)" marker-end="url(#pil-synk)"></polyline>
+          <polyline class="synk" points="584,355 630,355 630,230 676,230" marker-start="url(#pil-synk)" marker-end="url(#pil-synk)"></polyline>
+          <text class="synk-text" x="630" y="214" text-anchor="middle">WebSocket</text>
+
+          <!-- Lagring -->
+          <rect class="lada" x="680" y="400" width="270" height="90" rx="6"></rect>
+          <text class="titel" x="696" y="428">Netlify Blobs</text>
+          <text class="under" x="696" y="450">dokument + versioner</text>
+          <text class="under" x="696" y="468">nås med token, ej publikt</text>
+
+          <line class="spar" x1="770" y1="274" x2="770" y2="396" marker-end="url(#pil-spar)"></line>
+          <line class="spar streckad" x1="860" y1="396" x2="860" y2="274" marker-end="url(#pil-spar)"></line>
+
+          <!-- Teckenförklaring för de två lagringsvägarna, i tom yta under allt -->
+          <line class="spar" x1="300" y1="516" x2="332" y2="516"></line>
+          <text class="spar-text" x="340" y="520">sparar var 8:e sekund</text>
+          <line class="spar streckad" x1="540" y1="516" x2="572" y2="516"></line>
+          <text class="spar-text" x="580" y="520">läser vid uppstart</text>
+        </svg>
+      </div>
+      <figcaption><b>Två leverantörer, tre roller.</b> Netlify gör två helt olika jobb: levererar sidan som statiska filer, och lagrar dokumenten som blobbar. Render kör den enda delen som måste vara vaken — servern som håller ihop deltagarna. WebSocket-kanalerna är öppna hela tiden och bär binära ändringar, inte text.</figcaption>
+    </figure>
+
+    <div class="miljoer">
+      <div class="miljo">
+        <span class="vem">Netlify · statisk</span>
+        <b>Sidan</b>
+        <p>Ren HTML, JS och CSS. Ingen byggkedja, ingen serverkod. Varje besökare laddar ner samma filer och kör dem lokalt.</p>
+        <span class="adress">multi-edit-prototype.netlify.app</span>
+      </div>
+      <div class="miljo">
+        <span class="vem">Render · web service</span>
+        <b>Synkservern</b>
+        <p>Tar emot ändringar och skickar dem vidare till alla i samma rum. Håller varje dokument i minnet så länge någon är inne, och en stund efter.</p>
+        <span class="adress">wss://multi-edit-sync.onrender.com/ws</span>
+      </div>
+      <div class="miljo">
+        <span class="vem">Netlify · Blobs</span>
+        <b>Lagringen</b>
+        <p>Dokument och versionshistorik. Nås bara av synkservern, med en nyckel som ligger i Renders miljövariabler och aldrig i koden.</p>
+        <span class="adress">store: dokument</span>
+      </div>
+    </div>
+
+    <div class="tabellhylsa">
+      <table>
+        <thead>
+          <tr><th>Om den delen ligger nere</th><th>Vad som händer</th><th>Vad som går förlorat</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="namn">Netlify, statisk sida</td>
+            <td>Ingen kan öppna sidan. De som redan har den öppen fortsätter obehindrat.</td>
+            <td>Inget</td>
+          </tr>
+          <tr>
+            <td class="namn">Render, synkservern</td>
+            <td>Alla kan skriva, men ser inte varandra. Statusraden slår om till gult. Klienten försöker igen av sig själv.</td>
+            <td>Inget — ändringarna slås ihop när kontakten kommer tillbaka</td>
+          </tr>
+          <tr>
+            <td class="namn">Netlify Blobs</td>
+            <td>Samredigering fungerar. Servern kan inte spara, och kan inte läsa tillbaka ett dokument som ingen har öppet.</td>
+            <td>Ett dokument som stängts av alla, om lagringen är nere under hela den tiden</td>
+          </tr>
+          <tr>
+            <td class="namn">Deltagarens eget nät</td>
+            <td>Bara den personen tappar kontakten. Texten hen skriver hamnar i webbläsarens egen kopia.</td>
+            <td>Inget</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Vägen ett tangenttryck tar</h2>
+
+    <figure>
+      <div class="ritflak">
+        <svg viewBox="0 0 920 280" role="img" aria-label="Kedjan från tangenttryck till andras skärm: tangenttrycket går till Quill, som rapporterar ändringen till y-quill, som skriver den i Y.Doc. Yjs gör en binär uppdatering som skickas över WebSocket till synkserverns eget Y.Doc, som sänder den vidare till alla andra i rummet. Där tar y-quill emot den och skriver in texten i deras Quill.">
+          <defs>
+            <marker id="pil2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="currentColor"></path>
+            </marker>
+          </defs>
+
+          <!-- Rad 1: hos den som skriver -->
+          <text class="under" x="240" y="24">HOS DEN SOM SKRIVER</text>
+
+          <rect class="lada" x="16" y="36" width="188" height="62" rx="6"></rect>
+          <circle class="ringen" cx="34" cy="54" r="11"></circle>
+          <text class="siffra" x="34" y="58" text-anchor="middle">1</text>
+          <text class="titel" x="54" y="58">Tangenttryck</text>
+          <text class="under" x="32" y="82">i en Quill-textruta</text>
+
+          <rect class="lada" x="240" y="36" width="188" height="62" rx="6"></rect>
+          <circle class="ringen" cx="258" cy="54" r="11"></circle>
+          <text class="siffra" x="258" y="58" text-anchor="middle">2</text>
+          <text class="titel" x="278" y="58">y-quill</text>
+          <text class="under" x="256" y="82">översätter till Yjs</text>
+
+          <rect class="lada" x="464" y="36" width="188" height="62" rx="6"></rect>
+          <circle class="ringen" cx="482" cy="54" r="11"></circle>
+          <text class="siffra" x="482" y="58" text-anchor="middle">3</text>
+          <text class="titel" x="502" y="58">Y.Doc</text>
+          <text class="under" x="480" y="82">texten som CRDT</text>
+
+          <rect class="lada" x="688" y="36" width="216" height="62" rx="6"></rect>
+          <circle class="ringen" cx="706" cy="54" r="11"></circle>
+          <text class="siffra" x="706" y="58" text-anchor="middle">4</text>
+          <text class="titel" x="726" y="58">Binär uppdatering</text>
+          <text class="under" x="704" y="82">bara det som ändrats</text>
+
+          <line class="kant" x1="206" y1="67" x2="236" y2="67" marker-end="url(#pil2)"></line>
+          <line class="kant" x1="430" y1="67" x2="460" y2="67" marker-end="url(#pil2)"></line>
+          <line class="kant" x1="654" y1="67" x2="684" y2="67" marker-end="url(#pil2)"></line>
+
+          <!-- Ombrytning ner till rad 2. Etiketten ligger ovanför linjen, och
+               linjens lodräta del faller vid x=110 där ingen text står. -->
+          <text class="synk-text" x="470" y="124" text-anchor="middle">över nätet · WebSocket</text>
+          <polyline class="synk" points="796,98 796,138 110,138 110,174" marker-end="url(#pil-synk)"></polyline>
+
+          <!-- Rad 2: vidare till de andra -->
+          <text class="under" x="240" y="166">VIDARE TILL DE ANDRA</text>
+
+          <rect class="lada" x="16" y="178" width="188" height="62" rx="6"></rect>
+          <circle class="ringen" cx="34" cy="196" r="11"></circle>
+          <text class="siffra" x="34" y="200" text-anchor="middle">5</text>
+          <text class="titel" x="54" y="200">Serverns Y.Doc</text>
+          <text class="under" x="32" y="224">samma text, i minnet</text>
+
+          <rect class="lada" x="240" y="178" width="188" height="62" rx="6"></rect>
+          <circle class="ringen" cx="258" cy="196" r="11"></circle>
+          <text class="siffra" x="258" y="200" text-anchor="middle">6</text>
+          <text class="titel" x="278" y="200">De andra i rummet</text>
+          <text class="under" x="256" y="224">får samma uppdatering</text>
+
+          <rect class="lada" x="464" y="178" width="188" height="62" rx="6"></rect>
+          <circle class="ringen" cx="482" cy="196" r="11"></circle>
+          <text class="siffra" x="482" y="200" text-anchor="middle">7</text>
+          <text class="titel" x="502" y="200">y-quill</text>
+          <text class="under" x="480" y="224">skriver in i deras ruta</text>
+
+          <rect class="lada" x="688" y="178" width="216" height="62" rx="6"></rect>
+          <circle class="ringen" cx="706" cy="196" r="11"></circle>
+          <text class="siffra" x="706" y="200" text-anchor="middle">8</text>
+          <text class="titel" x="726" y="200">Texten syns</text>
+          <text class="under" x="704" y="224">utan att sidan laddas om</text>
+
+          <line class="kant" x1="206" y1="209" x2="236" y2="209" marker-end="url(#pil2)"></line>
+          <line class="kant" x1="430" y1="209" x2="460" y2="209" marker-end="url(#pil2)"></line>
+          <line class="kant" x1="654" y1="209" x2="684" y2="209" marker-end="url(#pil2)"></line>
+        </svg>
+      </div>
+      <figcaption><b>Åtta steg, ingen av dem väntar på svar.</b> Ingen bekräftelse skickas tillbaka, för ingen behövs: uppdateringen är giltig i sig själv och kan slås ihop när som helst. Samtidigt, och utanför den här kedjan, skriver steg 3 också till webbläsarens egen kopia och steg 5 till lagringen — det är därför ingenting går förlorat om kedjan bryts på mitten.</figcaption>
+    </figure>
+
+    <p>Kopplingen mellan textrutan och den delade texten är tre rader. Det är hela integrationen:</p>
+
+<pre><code>const doc = new Y.Doc();
+const provider = new WebsocketProvider(SYNKSERVER, rum, doc, { disableBc: true });
+
+new QuillBinding(doc.getText('sektion:sammanfattning'), quill, provider.awareness);</code></pre>
+
+    <div class="varning">
+      <h3>disableBc är satt med avsikt</h3>
+      <p>Utan den synkar två flikar i samma webbläsare via en genväg som aldrig rör nätet. Ett tvåfliks-test ser då grönt ut medan delningen i själva verket är trasig — det hände i det här projektet, och upptäcktes först i ett inkognitofönster. Testa aldrig delning utan att genvägen är av.</p>
+    </div>
+
+    <h3>Vad som skickas utöver texten</h3>
+    <p>Vid sidan av dokumentet finns en kanal för <em class="term">awareness</em> — flyktig information om vilka som är inne just nu. Den sparas aldrig, och försvinner när någon kopplar ner.</p>
+    <div class="tabellhylsa">
+      <table>
+        <thead><tr><th>Fält</th><th>Innehåll</th><th>Vad det driver i gränssnittet</th></tr></thead>
+        <tbody>
+          <tr><td class="kod">user</td><td>Initialer, fullständigt namn, färg, skriver just nu</td><td>Avatarer i toppen, namnet på markörens bricka</td></tr>
+          <tr><td class="kod">cursor</td><td>Markörens plats, som en relativ position i texten</td><td>De andras markörer, och vilket fält som är upptaget</td></tr>
+          <tr><td class="kod">markor</td><td>Om markören står sist på en rad eller först på nästa</td><td>Rätt placering vid radbrytning — det går inte att räkna ut från indexet</td></tr>
+          <tr><td class="kod">fokus</td><td>Om fönstret har fokus</td><td>Skiljer "klickade ut ur fältet" från "växlade program"</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Var datan finns</h2>
+    <p>Samma text finns på tre ställen samtidigt, med olika livslängd. Det är inte en bugg i designen utan poängen med den: varje kopia räddar ett annat fel.</p>
+
+    <div class="tabellhylsa">
+      <table>
+        <thead><tr><th>Plats</th><th>Vad som ligger där</th><th>Lever</th><th>Räddar</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="namn">Webbläsaren</td>
+            <td>Hela dokumentet i IndexedDB. Profil, dokumentlista och ägarnyckel i localStorage.</td>
+            <td>Till webbläsardatan rensas</td>
+            <td>Tappat nät, omladdning, stängd flik</td>
+          </tr>
+          <tr>
+            <td class="namn">Synkserverns minne</td>
+            <td>Ett Y.Doc per öppet rum, plus vilka som är inne.</td>
+            <td>Så länge någon är inne, plus 2 minuter</td>
+            <td>Att deltagare kommer och går vid olika tid</td>
+          </tr>
+          <tr>
+            <td class="namn">Netlify Blobs</td>
+            <td>Dokumentet som binär Yjs-uppdatering, och versionshistoriken.</td>
+            <td>Tills det raderas</td>
+            <td>Att servern startas om eller somnar</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Versionshistoriken</h3>
+    <p>Yjs sparar ingen tid och har ingen inbyggd historik som duger här, så varje version är <strong>hela dokumentets läge</strong> — omkring 10 kB — med serverns tidsstämpel. En signatur i sha1 jämförs mot föregående version: har ingenting ändrats skapas ingen ny post, utan den befintligas tidsstämpel flyttas fram. Tjugo automatiska versioner behålls, manuellt sparade gallras aldrig.</p>
+    <p>Bara den som skapat dokumentet kan återställa. Det avgörs av en hemlig sträng i skaparens egen webbläsare som dokumentet minns. Det är en spärr i gränssnittet, inte säkerhet.</p>
+  </section>
+
+  <section>
+    <h2>Tekniker och versioner</h2>
+    <p>Allt är låst till exakta versioner. Sidan har ingen byggkedja: biblioteken hämtas som ES-moduler direkt i webbläsaren via en <em class="term">importmap</em>, och <code>?deps=yjs@13.6.32</code> finns där för att alla bibliotek ska dela på <em>samma</em> Yjs-instans. Två instanser ser ut att fungera och synkar ingenting.</p>
+
+    <div class="tabellhylsa">
+      <table>
+        <thead><tr><th>Bibliotek</th><th>Version</th><th>Roll</th></tr></thead>
+        <tbody>
+          <tr><td class="namn">Yjs</td><td class="kod">13.6.32</td><td>CRDT-motorn. Håller texten och slår ihop ändringar.</td></tr>
+          <tr><td class="namn">Quill</td><td class="kod">2.0.3</td><td>Textrutan, stylad att se ut som ett vanligt fält.</td></tr>
+          <tr><td class="namn">y-quill</td><td class="kod">1.0.0</td><td>Kopplar Quill till Yjs i båda riktningarna.</td></tr>
+          <tr><td class="namn">quill-cursors</td><td class="kod">4.3.0</td><td>Ritar de andras markörer i texten.</td></tr>
+          <tr><td class="namn">y-websocket</td><td class="kod">3.1.0</td><td>Klientens uppkoppling mot synkservern.</td></tr>
+          <tr><td class="namn">y-indexeddb</td><td class="kod">9.0.12</td><td>Kopian i webbläsaren.</td></tr>
+          <tr><td class="namn">y-protocols</td><td class="kod">1.0.6</td><td>Protokollet för synk och awareness.</td></tr>
+          <tr><td class="namn">ws</td><td class="kod">8.18</td><td>Serverns WebSocket-implementation.</td></tr>
+          <tr><td class="namn">@netlify/blobs</td><td class="kod">11.0.2</td><td>Serverns väg till lagringen.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="obs">
+      <h3>Varför inte TinyMCE, som var utgångspunkten</h3>
+      <p>TinyMCE har ingen samredigering. Det betalda tillägget för realtid är borta ur produkten, och det finns ingen färdig koppling mot Yjs. Textrutan blev därför Quill, stylad att se ut som ett vanligt textfält. En äkta <code>&lt;textarea&gt;</code> gick inte: den kan inte rita ovanpå sin egen text, och då försvinner namngivna markörer, kommentarsmarkering och författarfärgning.</p>
+    </div>
+
+    <div class="obs">
+      <h3>Varför inte WebRTC, som var det första försöket</h3>
+      <p>Att koppla webbläsare direkt till varandra ser billigare ut, men kräver <strong>två</strong> nya delar i stället för en: en signalserver som presenterar deltagarna för varandra, och ett TURN-relä för nät som inte släpper igenom direktkopplingar — vilket lärosäten och myndigheter typiskt inte gör. Dessutom låg båda de publika signalservrarna nere när det testades. En egen liten WebSocket-server är enklare och mer förutsägbar.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Tider och gränser</h2>
+    <p>Allt som tickar i lösningen, samlat. Siffrorna är valda, inte slumpade, och de flesta finns i <code>config.js</code> eller <code>server/index.js</code>.</p>
+
+    <div class="tabellhylsa">
+      <table>
+        <thead><tr><th>Vad</th><th>Tid</th><th>Varför just den</th></tr></thead>
+        <tbody>
+          <tr><td class="namn">Hjärtslag mot klienterna</td><td class="kod">25 s</td><td>Upptäcker uttag som dött tyst, till exempel vid tappat wifi</td></tr>
+          <tr><td class="namn">Sparar dokumentet</td><td class="kod">8 s</td><td>Fördröjt, så att en skrivsvit blir en skrivning i stället för hundra</td></tr>
+          <tr><td class="namn">Ny version</td><td class="kod">2 min</td><td>Medan någon redigerar, plus när den sista lämnar</td></tr>
+          <tr><td class="namn">Rummet kvar i minnet</td><td class="kod">2 min</td><td>Efter att sista deltagaren gått, så en omladdning inte kostar en inläsning</td></tr>
+          <tr><td class="namn">Räknas som skrivande</td><td class="kod">8 s</td><td>Kort nog att ett bortglömt fönster inte blockerar, långt nog för en tankepaus</td></tr>
+          <tr><td class="namn">Fält kvar efter fönsterväxling</td><td class="kod">20 s</td><td>Markören försvinner när fönstret tappar fokus. Klick ut ur fältet släpper direkt.</td></tr>
+          <tr><td class="namn">Servern vaknar</td><td class="kod">upp till 1 min</td><td>Renders gratisnivå somnar vid inaktivitet. Statusraden säger till under tiden.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Så blir en ändring live</h2>
+    <p>Allt går genom ett enda ställe. Du ber om en ändring, jag ändrar filerna på din Mac och kör git, och <strong>samma push</strong> driftsätter både sidan och synkservern — automatiskt, från var sin del av repot.</p>
+
+    <figure>
+      <div class="ritflak">
+        <svg viewBox="0 0 1040 500" role="img" aria-label="Kedjan från begäran till driftsatt: du ber om en ändring i chatten, Claude Code ändrar filerna på din Mac och kör git push mot GitHub. Varje push till main driftsätter automatiskt två ställen: Netlify publicerar filerna som de är, och Render kör npm install och npm start i serverns mapp. Claude Code hämtar sedan den publicerade sidan och kontrollerar att kodversionen är ute.">
+          <defs>
+            <marker id="pil3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="currentColor"></path>
+            </marker>
+            <marker id="pil3-spar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="var(--signal)"></path>
+            </marker>
+          </defs>
+
+          <text class="spar-text" x="600" y="86" text-anchor="middle">kontrollerar versionen</text>
+          <polyline class="spar streckad" points="816,100 390,100 390,186" marker-end="url(#pil3-spar)"></polyline>
+
+          <rect class="lada" x="20" y="210" width="180" height="80" rx="6"></rect>
+          <text class="titel" x="36" y="240">Du</text>
+          <text class="under" x="36" y="262">ber om en ändring</text>
+
+          <line class="kant" x1="200" y1="250" x2="286" y2="250" marker-end="url(#pil3)"></line>
+          <text class="under" x="245" y="240" text-anchor="middle">i chatten</text>
+
+          <rect class="lada" x="290" y="190" width="210" height="120" rx="6"></rect>
+          <text class="titel" x="306" y="218">Claude Code</text>
+          <text class="under" x="306" y="240">på din Mac</text>
+          <text class="under" x="306" y="260">ändrar filerna</text>
+          <text class="under" x="306" y="280">kör git</text>
+          <text class="under" x="306" y="300">testar i webbläsare</text>
+
+          <line class="kant" x1="500" y1="250" x2="586" y2="250" marker-end="url(#pil3)"></line>
+          <text class="under" x="545" y="240" text-anchor="middle">git push</text>
+
+          <rect class="lada" x="590" y="210" width="170" height="80" rx="6"></rect>
+          <text class="titel" x="606" y="240">GitHub</text>
+          <text class="under" x="606" y="262">grenen main</text>
+
+          <line class="kant" x1="760" y1="250" x2="790" y2="250"></line>
+          <line class="kant" x1="790" y1="140" x2="790" y2="390"></line>
+          <line class="kant" x1="790" y1="140" x2="816" y2="140" marker-end="url(#pil3)"></line>
+          <line class="kant" x1="790" y1="390" x2="816" y2="390" marker-end="url(#pil3)"></line>
+          <text class="under" x="600" y="332">automatiskt vid varje push</text>
+
+          <rect class="lada" x="820" y="80" width="220" height="120" rx="6"></rect>
+          <text class="titel" x="836" y="108">Netlify</text>
+          <text class="under" x="836" y="130">publicerar filerna</text>
+          <text class="under" x="836" y="150">som de är</text>
+          <text class="under" x="836" y="170">ingen byggkedja</text>
+          <text class="under" x="836" y="190">sidan</text>
+
+          <rect class="lada" x="820" y="330" width="220" height="120" rx="6"></rect>
+          <text class="titel" x="836" y="358">Render</text>
+          <text class="under" x="836" y="380">rootDir: server</text>
+          <text class="under" x="836" y="400">npm install</text>
+          <text class="under" x="836" y="420">npm start</text>
+          <text class="under" x="836" y="440">synkservern</text>
+        </svg>
+      </div>
+      <figcaption><b>En push, två driftsättningar.</b> GitHub är enda källan, och de två tjänsterna hämtar var sin del ur samma commit: Netlify tar repots rot, Render bara mappen <code>server</code>. Den streckade pilen är kontrollen — jag hämtar den publicerade <code>config.js</code> och väntar tills den nya kodversionen syns där.</figcaption>
+    </figure>
+
+    <h3>Kodversionen är kvittot</h3>
+    <p><code>KODVERSION</code> i <code>config.js</code> höjs vid varje driftsättning. Efter en push hämtar jag filen från den publicerade adressen om och om igen tills det nya värdet dyker upp. Först då säger jag att något är utrullat — det är en mätning, inte en förhoppning. Samma värde syns för dig som verktygstips på statuspricken, så du kan se vilken version du faktiskt kör.</p>
+
+    <h3>Vem kan vad</h3>
+    <p>Jag har inget eget konto hos någon av tjänsterna. Pushen går med den GitHub-nyckel som ligger i din macOS-nyckelring (<code>credential.helper = osxkeychain</code>) — jag ser den aldrig, jag använder den bara genom git. Allt som kräver en inloggning är ditt.</p>
+
+    <div class="tabellhylsa">
+      <table>
+        <thead><tr><th>Uppgift</th><th>Jag</th><th>Bara du</th></tr></thead>
+        <tbody>
+          <tr><td class="namn">Ändra filer, commit och push</td><td>✓</td><td></td></tr>
+          <tr><td class="namn">Läsa den publicerade sidan och testa i två fönster</td><td>✓</td><td></td></tr>
+          <tr><td class="namn">Logga in på GitHub, Netlify eller Render</td><td></td><td>✓</td></tr>
+          <tr><td class="namn">Miljövariabler i Render, till exempel lagringens token</td><td></td><td>✓</td></tr>
+          <tr><td class="namn">Manual Deploy i Render</td><td></td><td>✓</td></tr>
+          <tr><td class="namn">Netlifys projektinställningar och driftsättningshistorik</td><td></td><td>✓</td></tr>
+          <tr><td class="namn">Radera en tjänst</td><td></td><td>✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Vad commitarna säger</h3>
+    <p>Commitarna står i ditt namn, med mig som medförfattare. Det är inte kosmetika: det är du som beslutar vad som ska ändras, och det ska synas i historiken vem som ansvarar för koden.</p>
+<pre><code>Author:  Nicklas Gustavsson
+Co-Authored-By: Claude Opus 5 &lt;noreply@anthropic.com&gt;</code></pre>
+
+    <div class="varning">
+      <h3>Renders tystaste fälla</h3>
+      <p>En push kan <strong>tyst utebli</strong> som driftsättning hos Render. Inget felmeddelande, ingen post under Events — bara en server som fortsätter köra gammal kod medan sidan har ny. Det märks som att något beter sig annorlunda i två fönster än vad koden säger. Lösningen är <strong>Manual Deploy → Deploy latest commit</strong> i Renders gränssnitt, och den knappen kan bara du trycka på.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Vad som inte finns</h2>
+    <p>Det här är en prototyp som ska visa att gränssnittet fungerar, inte en färdig tjänst. Följande är medvetna utelämnanden och värda att säga högt innan någon frågar.</p>
+    <ul>
+      <li><strong>Ingen inloggning.</strong> Länken är den enda vägen in, och den som har den kan läsa och skriva. Namnet man anger är overifierat.</li>
+      <li><strong>Låsningen är en artighetsspärr.</strong> Att ett fält är upptaget hindrar oavsiktliga krockar, inte någon som vill runt det. Yjs klarar två samtidiga skribenter i samma fält ändå.</li>
+      <li><strong>Ägarskap är en spärr i gränssnittet.</strong> Nyckeln ligger i skaparens webbläsare, inte i något system som kan kontrollera den.</li>
+      <li><strong>Koden är publik.</strong> Sidan är helt statisk, så källkoden laddas ner av varje besökare oavsett. Ett privat repo hade dolt historiken, inte koden. <code>noindex</code> och <code>robots.txt</code> är på plats.</li>
+      <li><strong>Inga riktiga uppgifter.</strong> All text passerar en synkserver på en delad gratisnivå. Skriv inget i prototypen som inte får ligga där.</li>
+    </ul>
+    <p>Ska det här bli skarpt är den tekniska delen som ändras minst omfattande: byt ut synkservern mot samma sak i egen drift, och lagringen mot en databas. Driftkraven för det skrivs när det finns en plats att driftsätta på — de beror helt på vad den miljön erbjuder, och en lista skriven mot Render och Netlify hjälper inte där. Utseendet på deltagarindikatorerna är beskrivet i ett eget dokument, <em>Deltagarindikatorer</em>, som inte ligger här.</p>
+  </section>
+
+  <footer>
+    Delat dokument · prototyp · 3 306 rader, varav 1 513 i app.js och 399 i synkservern<br>
+    Sidan bygger på koden i repot, inte på en beskrivning av den. Ändras lösningen ändras inte den här sidan.
+  </footer>
+
+</div>
+</body>
+</html>
