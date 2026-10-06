@@ -551,7 +551,7 @@ slutsats.
 
 ## Simulerat nätbortfall
 
-Längst till höger i statusraden finns tre knappar: **Nät på**, **Tyst avbrott** och **Bortkopplat**. De stryper anslutningen till synkservern i just det fönstret, så att det går att se vad som händer när någon tappar nätet. Inga andra fönster påverkas utöver vad ett riktigt avbrott skulle orsaka. Koden finns i `natverkstest.js`, och reglaget slås av med `VISA_NATTEST` i `config.js`.
+Längst till vänster i statusraden, före anslutningsstatusen, finns tre knappar: **Nät på**, **Tyst avbrott** och **Bortkopplat**. De stryper anslutningen till synkservern i just det fönstret, så att det går att se vad som händer när någon tappar nätet. Inga andra fönster påverkas utöver vad ett riktigt avbrott skulle orsaka. Koden finns i `natverkstest.js`, och reglaget slås av med `VISA_NATTEST` i `config.js`.
 
 - **Tyst avbrott** motsvarar en tågtunnel. Anslutningen ser ut att leva men ingenting går fram. Statusraden fortsätter visa *Ansluten* tills det har gått 30 sekunder sedan det senaste meddelandet från servern. Servern skickar något minst var 15:e sekund, så i praktiken tar det **15–33 sekunder** från avbrottet tills statusraden märker det. Uppmätt: 21 s.
 - **Bortkopplat** motsvarar att wifi slås av. Statusraden märker det direkt.

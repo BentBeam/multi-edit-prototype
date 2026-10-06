@@ -217,7 +217,8 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
 .prick.gul { background: #ba7517; }
 
 /* Reglaget för simulerat nätbortfall – ett testverktyg, se natverkstest.js. */
-.nattest { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.nattest { display: flex; align-items: center; gap: 8px; margin-right: 8px; }
+.nattest:empty { display: none; }
 .nattest-tid { font-variant-numeric: tabular-nums; }
 .nattest-grupp { display: flex; border: 1px solid var(--ram); border-radius: 8px; overflow: hidden; }
 .nattest-knapp {

@@ -272,7 +272,7 @@ function vyDokument(id) {
         <div id="kommentarer"></div>
       </aside>
     </div>
-    <footer class="statusrad"><span class="prick" id="prick"></span><span id="statustext">Ansluter…</span><span class="nattest" id="nattest"></span></footer>`;
+    <footer class="statusrad"><span class="nattest" id="nattest"></span><span class="prick" id="prick"></span><span id="statustext">Ansluter…</span></footer>`;
 
   document.getElementById('apprubrik').textContent = APPNAMN;
   document.getElementById('tillbaka').addEventListener('click', () => { location.hash = ''; });
@@ -819,8 +819,8 @@ function byggNattest() {
   const behallare = document.getElementById('nattest');
   if (!behallare || !VISA_NATTEST || !session.synk.provider) return;
 
-  behallare.innerHTML = `<span class="nattest-tid" id="nattesttid"></span>
-    <span class="nattest-grupp" role="group" aria-label="Simulera nätbortfall"></span>`;
+  behallare.innerHTML = `<span class="nattest-grupp" role="group" aria-label="Simulera nätbortfall"></span>
+    <span class="nattest-tid" id="nattesttid"></span>`;
   const grupp = behallare.querySelector('.nattest-grupp');
 
   NATLAGEN.forEach(({ lage, etikett }) => {
