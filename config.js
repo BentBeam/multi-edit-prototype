@@ -4,7 +4,7 @@
    statusraden, och skrivs ut i webbläsarens konsol vid start. Finns för att det
    ska gå att avgöra på en sekund om en webbläsare kör den senaste koden – den
    frågan har annars kostat oss mycket tid. */
-export const KODVERSION = '2026-09-17 b';
+export const KODVERSION = '2026-10-06 a';
 
 export const APPNAMN = 'Delat dokument';
 
@@ -25,6 +25,11 @@ export const MAX_TILLAGG = 2;
  * finns riktiga användare som bett om mindre rörelse av skäl som väger tyngre
  * än att en markör ska se levande ut. */
 export const RESPEKTERA_MINDRE_RORELSE = false;
+
+/* Visar ett reglage i statusraden som simulerar nätbortfall i det här fönstret:
+   tyst avbrott (tågtunneln) eller bortkopplat (wifi av). Se natverkstest.js.
+   Ett testverktyg – sätt till false innan riktiga användare släpps in. */
+export const VISA_NATTEST = true;
 
 /* Lägg till, ta bort eller döp om sektioner här. Nyckeln (key) måste vara unik
    och bör inte ändras efter att någon börjat skriva – den är det som kopplar

@@ -216,6 +216,17 @@ input:disabled { background: var(--yta-falt-last, #f7f7f5); color: var(--text-da
 .prick.gra { background: var(--text-svag); }
 .prick.gul { background: #ba7517; }
 
+/* Reglaget för simulerat nätbortfall – ett testverktyg, se natverkstest.js. */
+.nattest { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.nattest-tid { font-variant-numeric: tabular-nums; }
+.nattest-grupp { display: flex; border: 1px solid var(--ram); border-radius: 8px; overflow: hidden; }
+.nattest-knapp {
+  font: inherit; font-size: 12px; color: var(--text-dampad);
+  background: transparent; border: 0; padding: 4px 8px; cursor: pointer;
+}
+.nattest-knapp + .nattest-knapp { border-left: 1px solid var(--ram); }
+.nattest-knapp[aria-pressed="true"] { background: var(--text); color: var(--yta); }
+
 /* Initialerna ovanför andras markörer i texten.
    Biblioteket döljer etiketten som standard och visar den bara en kort stund
    efter en rörelse. Vi vill se vem som står var hela tiden. Reglerna måste vara

@@ -3,7 +3,8 @@ const QuillDelta = Quill.import('delta');
 import QuillCursors from 'quill-cursors';
 import { QuillBinding } from 'y-quill';
 
-import { APPNAMN, KODVERSION, SEKTIONER, DELTAGARFARGER, RUMSPREFIX, RESPEKTERA_MINDRE_RORELSE } from './config.js';
+import { APPNAMN, KODVERSION, SEKTIONER, DELTAGARFARGER, RUMSPREFIX, RESPEKTERA_MINDRE_RORELSE, VISA_NATTEST } from './config.js';
+import { natverkslage, sattNatverkslage, omNatverkslage } from './natverkstest.js';
 import { Lagring } from './lagring.js';
 import { anslut, deltagare } from './synk.js';
 import {
@@ -271,7 +272,7 @@ function vyDokument(id) {
         <div id="kommentarer"></div>
       </aside>
     </div>
-    <footer class="statusrad"><span class="prick" id="prick"></span><span id="statustext">Ansluter…</span></footer>`;
+    <footer class="statusrad"><span class="prick" id="prick"></span><span id="statustext">Ansluter…</span><span class="nattest" id="nattest"></span></footer>`;
 
   document.getElementById('apprubrik').textContent = APPNAMN;
   document.getElementById('tillbaka').addEventListener('click', () => { location.hash = ''; });
@@ -294,6 +295,7 @@ function vyDokument(id) {
     setTimeout(() => { kopiera.textContent = 'Kopiera länk'; }, 2000);
   });
 
+  byggNattest();
   byggFormular();
 
   /* Ändringar som kommer från någon annan. */
@@ -798,6 +800,61 @@ function ritaStatusrad() {
   text.textContent = session.harVaritAnsluten
     ? 'Tappade kontakten med servern – försöker igen, det du skriver sparas så länge'
     : 'Startar servern, det kan ta upp till en minut – det du skriver sparas så länge';
+}
+
+/* ---------- Simulerat nätbortfall ----------
+   Reglaget i statusraden. Själva strypningen sker i natverkstest.js; här ritas
+   bara knapparna och en räknare för hur länge avbrottet pågått, så det går att
+   se hur lång tid det tar innan statusraden märker något. */
+
+const NATLAGEN = [
+  { lage: 'pa', etikett: 'Nät på' },
+  { lage: 'tyst', etikett: 'Tyst avbrott' },
+  { lage: 'brutet', etikett: 'Bortkopplat' }
+];
+
+let nattestRaknare = null;
+
+function byggNattest() {
+  const behallare = document.getElementById('nattest');
+  if (!behallare || !VISA_NATTEST || !session.synk.provider) return;
+
+  behallare.innerHTML = `<span class="nattest-tid" id="nattesttid"></span>
+    <span class="nattest-grupp" role="group" aria-label="Simulera nätbortfall"></span>`;
+  const grupp = behallare.querySelector('.nattest-grupp');
+
+  NATLAGEN.forEach(({ lage, etikett }) => {
+    const knapp = document.createElement('button');
+    knapp.type = 'button';
+    knapp.className = 'nattest-knapp';
+    knapp.dataset.lage = lage;
+    knapp.textContent = etikett;
+    knapp.addEventListener('click', () => sattNatverkslage(lage));
+    grupp.append(knapp);
+  });
+
+  omNatverkslage(ritaNattest);
+  ritaNattest();
+}
+
+function ritaNattest() {
+  const behallare = document.getElementById('nattest');
+  if (!behallare) return;
+  const { lage, sedan } = natverkslage();
+
+  behallare.querySelectorAll('.nattest-knapp').forEach(knapp => {
+    knapp.setAttribute('aria-pressed', String(knapp.dataset.lage === lage));
+  });
+
+  const tid = document.getElementById('nattesttid');
+  const skriv = () => {
+    tid.textContent = sedan
+      ? 'simulerat i ' + Math.round((Date.now() - sedan) / 1000) + ' s'
+      : '';
+  };
+  clearInterval(nattestRaknare);
+  skriv();
+  if (sedan) nattestRaknare = setInterval(skriv, 1000);
 }
 
 /* ---------- Statuspanelen ---------- */
@@ -1542,6 +1599,12 @@ console.log('Delat dokument – kodversion ' + KODVERSION);
    beter sig konstigt. Skriver ingenting och ändrar ingenting. */
 window.delatDokument = {
   version: KODVERSION,
+
+  /* Samma som reglaget i statusraden: 'pa', 'tyst' eller 'brutet'. */
+  natet(lage) {
+    if (lage) sattNatverkslage(lage);
+    return natverkslage();
+  },
 
   /* Nödutgång när uppkopplingen hängt sig: bryt uttaget och koppla upp igen.
      Yjs är en CRDT, så båda sidor slås ihop utan att något går förlorat –

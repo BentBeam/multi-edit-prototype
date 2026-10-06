@@ -5,6 +5,7 @@ import { WebsocketProvider } from 'y-websocket';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import { Awareness } from 'y-protocols/awareness';
 import { SYNKSERVER, RUMSPREFIX } from './config.js';
+import { StrypbarWebSocket } from './natverkstest.js';
 
 /* Hur länge efter senaste tangenttryck någon räknas som skrivande. Kort nog att
    ett bortglömt fönster inte blockerar andra, långt nog att en tankepaus inte
@@ -20,9 +21,13 @@ export function anslut(dokumentId, profil) {
 
   /* disableBc stänger av genvägen mellan flikar i samma webbläsare. Utan den
      kan två flikar synka lokalt även när servern är nere, vilket får det att se
-     ut som att delning fungerar när den inte gör det. */
+     ut som att delning fungerar när den inte gör det.
+
+     StrypbarWebSocket är en vanlig WebSocket som går att strypa för att
+     simulera nätbortfall – se natverkstest.js. Står reglaget på "på" gör den
+     ingen skillnad. */
   const provider = SYNKSERVER
-    ? new WebsocketProvider(SYNKSERVER, rum, doc, { disableBc: true })
+    ? new WebsocketProvider(SYNKSERVER, rum, doc, { disableBc: true, WebSocketPolyfill: StrypbarWebSocket })
     : null;
 
   /* Utan server finns ingen att vara närvarande inför, men resten av appen
