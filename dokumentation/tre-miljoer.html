@@ -22,6 +22,7 @@
     --accent-soft: #E2E5F5;
     --signal:      #A8480F;
     --signal-soft: #F6E8DC;
+    --fel:         #B42318;
 
     --display: "Chivo", ui-sans-serif, system-ui, sans-serif;
     --body: "Newsreader", ui-serif, Georgia, serif;
@@ -41,6 +42,7 @@
       --accent-soft: #23294A;
       --signal:      #E29B62;
       --signal-soft: #34251A;
+      --fel:         #F97066;
     }
   }
 
@@ -56,6 +58,7 @@
     --accent-soft: #23294A;
     --signal:      #E29B62;
     --signal-soft: #34251A;
+    --fel:         #F97066;
   }
 
   * { box-sizing: border-box; }
@@ -222,6 +225,11 @@
   .streckad { stroke-dasharray: 5 4; }
   .siffra { fill: var(--accent); font-size: 11px; font-weight: 500; }
   .ringen { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; }
+  .lada-inre.aktiv { stroke: var(--accent); stroke-width: 1.4; }
+  .bruten { stroke: var(--ink-faint); stroke-width: 2; fill: none; stroke-dasharray: 1 6; stroke-linecap: round; }
+  .brott-ring { fill: var(--surface); stroke: var(--fel); stroke-width: 1.6; }
+  .brott-kryss { stroke: var(--fel); stroke-width: 2; stroke-linecap: round; }
+  .fel-text { fill: var(--fel); font-size: 11px; font-weight: 500; }
 
   /* ---------- Tabeller ---------- */
 
@@ -484,6 +492,149 @@
         </tbody>
       </table>
     </div>
+
+    <h3>När en deltagare tappar nätet en längre stund</h3>
+    <p>Säg att Anna sitter på ett tåg som går in i en lång tunnel, och Bertil sitter kvar på kontoret. Bertil står här för alla andra som är inne i dokumentet; det som gäller honom gäller dem alla.</p>
+
+    <figure>
+      <div class="ritflak">
+        <svg viewBox="0 0 960 540" role="img" aria-label="Samma karta som ovan, men Annas förbindelse med synkservern är bruten: linjen är prickad och genomkorsad, och ingenting skickas eller tas emot åt något håll. Anna skriver vidare och allt hamnar i hennes egen kopia i IndexedDB. Bertils förbindelse fungerar som vanligt. Servern fortsätter med Bertil och sparar hans ändringar till Netlify Blobs, men saknar Annas nya text.">
+          <defs>
+            <marker id="pil-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="currentColor"></path>
+            </marker>
+            <marker id="pil-synk-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="var(--accent)"></path>
+            </marker>
+            <marker id="pil-spar-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="var(--signal)"></path>
+            </marker>
+          </defs>
+
+          <!-- Netlify, statisk sida: redan hämtad, påverkas inte -->
+          <rect class="lada" x="20" y="160" width="190" height="90" rx="6"></rect>
+          <text class="titel" x="36" y="188">Netlify</text>
+          <text class="under" x="36" y="210">statisk sida</text>
+          <text class="under" x="36" y="228">redan hämtad</text>
+
+          <line class="kant" x1="210" y1="205" x2="244" y2="205" marker-end="url(#pil-b)"></line>
+          <line class="kant" x1="248" y1="85" x2="248" y2="355"></line>
+          <line class="kant" x1="248" y1="85" x2="294" y2="85" marker-end="url(#pil-b)"></line>
+          <line class="kant" x1="248" y1="355" x2="294" y2="355" marker-end="url(#pil-b)"></line>
+          <text class="under" x="310" y="209">hämtas en gång</text>
+
+          <!-- Webbläsare Anna, utan nät -->
+          <rect class="lada" x="300" y="30" width="280" height="110" rx="6"></rect>
+          <text class="titel" x="316" y="54">Webbläsare · Anna · utan nät</text>
+          <text class="under" x="316" y="74">skriver vidare, ser ingen annan</text>
+          <rect class="lada-inre aktiv" x="316" y="84" width="248" height="38" rx="4"></rect>
+          <text class="under" x="328" y="100">IndexedDB</text>
+          <text class="under" x="328" y="114">tar emot allt Anna skriver</text>
+
+          <!-- Webbläsare Bertil -->
+          <rect class="lada" x="300" y="300" width="280" height="110" rx="6"></rect>
+          <text class="titel" x="316" y="324">Webbläsare · Bertil</text>
+          <text class="under" x="316" y="344">ser Anna försvinna efter 15–33 s</text>
+          <rect class="lada-inre" x="316" y="354" width="248" height="38" rx="4"></rect>
+          <text class="under" x="328" y="370">IndexedDB</text>
+          <text class="under" x="328" y="384">egen kopia av dokumentet</text>
+
+          <!-- Synkserver -->
+          <rect class="lada" x="680" y="150" width="270" height="120" rx="6"></rect>
+          <text class="titel" x="696" y="176">Render · synkserver</text>
+          <text class="under" x="696" y="198">fortsätter med Bertil</text>
+          <text class="under" x="696" y="216">vet inte att Anna är borta</text>
+          <text class="under" x="696" y="234">kopplar bort Anna efter 25–50 s</text>
+          <text class="under" x="696" y="252">har bara Bertils ändringar</text>
+
+          <!-- Annas WebSocket: bruten, inga pilspetsar åt något håll -->
+          <polyline class="bruten" points="584,85 630,85 630,190 676,190"></polyline>
+          <circle class="brott-ring" cx="630" cy="118" r="10"></circle>
+          <line class="brott-kryss" x1="625" y1="113" x2="635" y2="123"></line>
+          <line class="brott-kryss" x1="635" y1="113" x2="625" y2="123"></line>
+          <text class="fel-text" x="648" y="122">inget går fram</text>
+
+          <!-- Bertils WebSocket: som vanligt -->
+          <polyline class="synk" points="584,355 630,355 630,230 676,230" marker-start="url(#pil-synk-b)" marker-end="url(#pil-synk-b)"></polyline>
+          <text class="synk-text" x="630" y="214" text-anchor="middle">WebSocket</text>
+
+          <!-- Lagring -->
+          <rect class="lada" x="680" y="400" width="270" height="90" rx="6"></rect>
+          <text class="titel" x="696" y="428">Netlify Blobs</text>
+          <text class="under" x="696" y="450">sparar som vanligt</text>
+          <text class="under" x="696" y="468">saknar Annas nya text</text>
+
+          <line class="spar" x1="770" y1="274" x2="770" y2="396" marker-end="url(#pil-spar-b)"></line>
+          <line class="spar streckad" x1="860" y1="396" x2="860" y2="274" marker-end="url(#pil-spar-b)"></line>
+
+          <!-- Teckenförklaring -->
+          <line class="spar" x1="300" y1="516" x2="332" y2="516"></line>
+          <text class="spar-text" x="340" y="520">sparar var 8:e sekund</text>
+          <line class="spar streckad" x1="540" y1="516" x2="572" y2="516"></line>
+          <text class="spar-text" x="580" y="520">läser vid uppstart</text>
+          <line class="bruten" x1="740" y1="516" x2="772" y2="516"></line>
+          <circle class="brott-ring" cx="756" cy="516" r="7"></circle>
+          <line class="brott-kryss" x1="753" y1="513" x2="759" y2="519"></line>
+          <line class="brott-kryss" x1="759" y1="513" x2="753" y2="519"></line>
+          <text class="fel-text" x="780" y="520">ingen förbindelse</text>
+        </svg>
+      </div>
+      <figcaption><b>Bara en linje är bruten, men ingen märker det direkt.</b> Annas wifi visar fortfarande full anslutning, så webbläsaren tror att linjen lever. Ingenting skickas fram och ingenting tas emot, åt något håll. Servern får heller inget felbesked när den skickar Bertils ändringar till Anna; de bara kommer aldrig fram. Allt Anna skriver hamnar i hennes egen kopia, och resten av kedjan fortsätter som vanligt utan henne.</figcaption>
+    </figure>
+
+    <p>Ingen av sidorna kan skilja <em>tyst för att det är lugnt</em> från <em>tyst för att linjen är död</em>. En WebSocket skickar bara när något händer, och mellan tangenttrycken är den helt tyst. Därför tar det en stund innan någon märker något, och därför märker de det vid olika tidpunkter.</p>
+
+    <div class="tabellhylsa">
+      <table>
+        <thead>
+          <tr><th>Efter</th><th>Anna, utan nät</th><th>Bertil och de andra</th><th>Servern</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="kod">0 s</td>
+            <td>Skriver vidare som vanligt. Texten syns för Anna och sparas i hennes webbläsare. Statusraden visar fortfarande grönt.</td>
+            <td>Annas markör står still. Det hon skriver kommer inte fram.</td>
+            <td>Vet ingenting.</td>
+          </tr>
+          <tr>
+            <td class="kod">15–33 s</td>
+            <td>Statusraden blir gul: <em>Tappade kontakten med servern</em>. De andras markörer försvinner. Webbläsaren försöker koppla upp sig igen, ett försök var 2,5:e sekund.</td>
+            <td>Annas avatar och markör försvinner.</td>
+            <td>Fortsätter med de andra.</td>
+          </tr>
+          <tr>
+            <td class="kod">25–50 s</td>
+            <td>Oförändrat.</td>
+            <td>Oförändrat.</td>
+            <td>Kopplar bort Anna, eftersom hon inte svarat på två ping i rad.</td>
+          </tr>
+          <tr>
+            <td class="kod">minuter</td>
+            <td>Skriver vidare. Anna och de andra har nu var sin version av texten, som glider isär.</td>
+            <td>Skriver vidare och ser varandra som vanligt.</td>
+            <td>Sparar de andras ändringar var 8:e sekund och gör en ny version var 2:a minut.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Stänger Anna fliken eller datorn under resan försvinner ingenting. Texten ligger kvar i webbläsarens egen kopia och skickas upp nästa gång hon öppnar dokumentet med nät, men bara i samma webbläsare på samma dator.</p>
+
+    <h3>När förbindelsen kommer tillbaka</h3>
+    <p>Inom ungefär 2,5 sekunder efter att nätet är tillbaka har Annas webbläsare en ny förbindelse. Har ingen annan varit inne på en kvart kan servern ha somnat, och då tar det upp till en minut. Sedan sker detta, utan att någon gör något:</p>
+    <ul>
+      <li><strong>Synkningen.</strong> Annas webbläsare och servern skickar var sin kort lista över vilka ändringar de redan har. Var och en svarar med exakt det den andra saknar. Anna får alla de andras ändringar, och servern får Annas, i ett enda utbyte. Ingen version skrivs över, och ingen sida vinner över den andra.</li>
+      <li><strong>Anna</strong> ser de andras text dyka upp i de sektioner där de skrivit. Hennes egen text är kvar. Statusraden blir grön och de andras markörer kommer tillbaka.</li>
+      <li><strong>Bertil och de andra</strong> ser Annas avatar komma tillbaka, och all text hon skrev under avbrottet dyker upp på en gång. Deras egen text rörs inte.</li>
+      <li><strong>Servern</strong> sparar det sammanslagna dokumentet inom 8 sekunder. Nästa version i historiken visar resultatet. Yjs sparar ingen tid, så i historiken ser det ut som om Annas text skrevs när hon kom tillbaka, inte när hon faktiskt skrev den.</li>
+    </ul>
+
+    <div class="varning">
+      <h3>Det som kan se konstigt ut</h3>
+      <p>Har Anna och Bertil skrivit i olika sektioner blir resultatet precis det man väntar sig. Har de skrivit om <strong>samma mening</strong> behålls bådas text, sida vid sida, och någon får läsa igenom och rensa. Har Bertil raderat ett stycke som Anna samtidigt skrev i, försvinner hans raderade text men hennes nya ord blir kvar som lösa fragment. Fältlåset hjälper inte här: utan nät ser Anna ingen annan, och då är inga fält låsta för henne.</p>
+      <p>Appen säger i dag ingenting om vad som hänt. Texten ändras framför Anna, och Bertil ser ett stycke dyka upp från ingenstans. Ett besked i stil med <em>Du var frånkopplad i 14 minuter, under tiden ändrade Bertil i Syfte och Budget</em> går att bygga, eftersom synkningen redan vet exakt vad som skiljde.</p>
+    </div>
+
   </section>
 
   <section>
